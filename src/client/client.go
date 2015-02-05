@@ -9,6 +9,7 @@ package client
 
 import (
 	"bitbucket.org/ebianchi/memento-common/common"
+	"client/files"
 	"encoding/json"
 	"net"
 	"os"
@@ -31,7 +32,7 @@ func Parse(data []uint8, conn net.Conn) {
 		}
 	case "file":
 		if cmd.Command.Name == "list" {
-			// TODO: Write fode for file listing command
+			files.List(&cmd.Command)
 		} else if cmd.Command.Name == "get" {
 			// TODO: Write fode for file getting command
 		} else if cmd.Command.Name == "put" {
