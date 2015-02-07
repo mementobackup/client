@@ -10,6 +10,7 @@ package files
 import (
 	"bitbucket.org/ebianchi/memento-common/common"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 )
@@ -20,7 +21,7 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 		return nil       // but continue walking elsewhere
 	}
 
-    // not a file
+	// not a file
 	if fi.IsDir() {
 		fmt.Println(fp)
 		return nil
@@ -30,6 +31,10 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	return nil
 }
 
-func List(command *common.JSONCommand) {
-	filepath.Walk(command.Directory, visitfile)
+func List(conn net.Conn, command *common.JSONCommand) {
+	if command.Directory != "" {
+		filepath.Walk(command.Directory, visitfile)
+	} else {
+		common.Sendresult(conn, "ko", "No directory specified")
+	}
 }

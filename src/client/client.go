@@ -32,7 +32,7 @@ func Parse(data []uint8, conn net.Conn) {
 		}
 	case "file":
 		if cmd.Command.Name == "list" {
-			files.List(&cmd.Command)
+			files.List(conn, &cmd.Command)
 		} else if cmd.Command.Name == "get" {
 			// TODO: Write fode for file getting command
 		} else if cmd.Command.Name == "put" {
