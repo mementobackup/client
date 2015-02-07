@@ -35,6 +35,7 @@ func List(conn net.Conn, command *common.JSONCommand) {
 	if command.Directory != "" {
 		filepath.Walk(command.Directory, visitfile)
 	} else {
-		common.Sendresult(conn, "ko", "No directory specified")
+		res := common.JSONResult{"ko", "No directory specified"}
+		res.Send(conn)
 	}
 }
