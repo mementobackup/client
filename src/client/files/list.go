@@ -44,6 +44,7 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 
 	// Set the file name and the operating system
 	file.Name = fp
+	file.Size = fi.Size()
 	file.Os = runtime.GOOS
 
 	if runtime.GOOS == "linux" {
