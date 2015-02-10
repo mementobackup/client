@@ -33,6 +33,59 @@ import "C"
 
 var connection net.Conn
 
+func posix_user(fi os.FileInfo) string {
+	var rv C.int
+	var pwd C.struct_passwd
+	var pwdres *C.struct_passwd
+	var bufSize C.long
+	var result string
+
+	bufSize = 1024
+	buf := C.malloc(C.size_t(bufSize))
+	defer C.free(buf)
+
+	uid := fi.Sys().(*syscall.Stat_t).Uid
+
+	rv = C.mygetpwuid_r(C.int(uid), &pwd, (*C.char)(buf), C.size_t(bufSize), &pwdres)
+	if rv != 0 {
+		// Manage error
+	}
+
+	if pwdres != nil {
+		result = C.GoString(pwd.pw_name)
+	} else {
+		// Manage error
+	}
+
+	return result
+}
+
+func posix_group(fi os.FileInfo) string {
+	var rv C.int
+	var grp C.struct_group
+	var grpres *C.struct_group
+	var bufSize C.long
+	var result string
+
+	bufSize = 1024
+	buf := C.malloc(C.size_t(bufSize))
+	defer C.free(buf)
+
+	gid := fi.Sys().(*syscall.Stat_t).Gid
+
+	rv = C.mygetgrgid_r(C.int(gid), &grp, (*C.char)(buf), C.size_t(bufSize), &grpres)
+	if rv != 0 {
+		// Manage error
+	}
+
+	if grpres != nil {
+		result = C.GoString(grp.gr_name)
+	} else {
+		// Manage error
+	}
+	return result
+}
+
 func visitfile(fp string, fi os.FileInfo, err error) error {
 	file := common.JSONFile{}
 
@@ -48,41 +101,8 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	file.Os = runtime.GOOS
 
 	if runtime.GOOS == "linux" {
-		var rv C.int
-		var pwd C.struct_passwd
-		var grp C.struct_group
-		var pwdres *C.struct_passwd
-		var grpres *C.struct_group
-		var bufSize C.long
-
-		bufSize = 1024
-		buf := C.malloc(C.size_t(bufSize))
-		defer C.free(buf)
-
-		uid := fi.Sys().(*syscall.Stat_t).Uid
-		gid := fi.Sys().(*syscall.Stat_t).Gid
-
-		rv = C.mygetpwuid_r(C.int(uid), &pwd, (*C.char)(buf), C.size_t(bufSize), &pwdres)
-		if rv != 0 {
-			// Manage error
-		}
-
-		if pwdres != nil {
-			file.User = C.GoString(pwd.pw_name)
-		} else {
-			// Manage error
-		}
-
-		rv = C.mygetgrgid_r(C.int(gid), &grp, (*C.char)(buf), C.size_t(bufSize), &grpres)
-		if rv != 0 {
-			// Manage error
-		}
-
-		if grpres != nil {
-			file.Group = C.GoString(grp.gr_name)
-		} else {
-			// Manage error
-		}
+		file.User = posix_user(fi)
+		file.Group = posix_group(fi)
 	}
 
 	// Set type of element (file or directory)
@@ -92,7 +112,7 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 		file.Type = "file"
 	}
 
-	// TODO: add hash, size, date, permission and ACL
+	// TODO: add hash, date, permission and ACL
 
 	// Set result
 	file.Result = "ok"
