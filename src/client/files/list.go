@@ -16,6 +16,21 @@ import (
 	"syscall"
 )
 
+/*
+#include <pwd.h>
+#include <grp.h>
+#include <stdlib.h>
+
+static int mygetpwuid_r(int uid, struct passwd *pwd, char *buf, size_t buflen, struct passwd **result) {
+    	 return getpwuid_r(uid, pwd, buf, buflen, result);
+}
+
+static int mygetgrgid_r(int gid, struct group *grp, char *buf, size_t buflen, struct group **result) {
+    	 return getgrgid_r(gid, grp, buf, buflen, result);
+}
+*/
+import "C"
+
 var connection net.Conn
 
 func visitfile(fp string, fi os.FileInfo, err error) error {
@@ -32,11 +47,41 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	file.Os = runtime.GOOS
 
 	if runtime.GOOS == "linux" {
-		// FIXME: Convert UID into Username (you need to use a C call)
-		//file.User = fi.Sys().(*syscall.Stat_t).Uid
+		var rv C.int
+		var pwd C.struct_passwd
+		var grp C.struct_group
+		var pwdres *C.struct_passwd
+		var grpres *C.struct_group
+		var bufSize C.long
 
-		// FIXME: Convert GID into Groupname (you need to use a C call)
-		//file.Group = fi.Sys().(*syscall.Stat_t).Gid
+		bufSize = 1024
+		buf := C.malloc(C.size_t(bufSize))
+		defer C.free(buf)
+
+		uid := fi.Sys().(*syscall.Stat_t).Uid
+		gid := fi.Sys().(*syscall.Stat_t).Gid
+
+		rv = C.mygetpwuid_r(C.int(uid), &pwd, (*C.char)(buf), C.size_t(bufSize), &pwdres)
+		if rv != 0 {
+			// Manage error
+		}
+
+		if pwdres != nil {
+			file.User = C.GoString(pwd.pw_name)
+		} else {
+			// Manage error
+		}
+
+		rv = C.mygetgrgid_r(C.int(gid), &grp, (*C.char)(buf), C.size_t(bufSize), &grpres)
+		if rv != 0 {
+			// Manage error
+		}
+
+		if grpres != nil {
+			file.Group = C.GoString(grp.gr_name)
+		} else {
+			// Manage error
+		}
 	}
 
 	// Set type of element (file or directory)
