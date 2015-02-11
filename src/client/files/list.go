@@ -9,6 +9,7 @@ package files
 
 import (
 	"bitbucket.org/ebianchi/memento-common/common"
+	"encoding/hex"
 	"net"
 	"os"
 	"path/filepath"
@@ -39,6 +40,7 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 		file.Type = "directory"
 	} else {
 		file.Type = "file"
+		file.Hash = hex.EncodeToString(common.Md5(fp))
 	}
 
 	// TODO: add hash, date, permission and ACL
