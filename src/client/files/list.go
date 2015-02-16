@@ -17,6 +17,8 @@ import (
 )
 
 func visitfile(fp string, fi os.FileInfo, err error) error {
+	// TODO: add permission and ACL
+
 	file := common.JSONFile{}
 
 	if err != nil {
@@ -28,6 +30,7 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	// Set the file name and the operating system
 	file.Name = fp
 	file.Os = runtime.GOOS
+	file.Mtime = fi.ModTime().Unix()
 
 	if runtime.GOOS == "linux" {
 		file.User = posix_user(fi)
@@ -42,8 +45,6 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 		file.Size = fi.Size()
 		file.Hash = hex.EncodeToString(common.Md5(fp))
 	}
-
-	// TODO: add hash, date, permission and ACL
 
 	// Set result
 	file.Result = "ok"
