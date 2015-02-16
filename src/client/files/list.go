@@ -17,7 +17,7 @@ import (
 )
 
 func visitfile(fp string, fi os.FileInfo, err error) error {
-	// TODO: add permission and ACL
+	// TODO: extract ACL
 
 	file := common.JSONFile{}
 
@@ -35,6 +35,7 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	if runtime.GOOS == "linux" {
 		file.User = posix_user(fi)
 		file.Group = posix_group(fi)
+		file.Mode = fi.Mode().String()
 	}
 
 	// Set type of element (file or directory)
