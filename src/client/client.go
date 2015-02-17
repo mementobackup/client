@@ -19,7 +19,7 @@ func Parse(data []uint8, conn net.Conn) {
 	var cmd common.JSONMessage
 
 	if err := json.Unmarshal(data, &cmd); err != nil {
-		res := common.JSONResult{"ko", "Malformed command"}
+		res := common.JSONResult{"ko", "Malformed command: " + err.Error()}
 		res.Send(conn)
 		return
 	}
@@ -39,11 +39,11 @@ func Parse(data []uint8, conn net.Conn) {
 		} else if cmd.Command.Name == "put" {
 			// TODO: Write fode for file putting command
 		} else {
-			res := common.JSONResult{"ko", "Malformed command"}
+			res := common.JSONResult{"ko", "Command unknown: " + cmd.Command.Name}
 			res.Send(conn)
 		}
 	default:
-		res := common.JSONResult{"ko", "Malformed command"}
+		res := common.JSONResult{"ko", "Context unknown: " + cmd.Context}
 		res.Send(conn)
 	}
 
