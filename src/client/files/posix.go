@@ -23,12 +23,9 @@ static int mygetgrgid_r(int gid, struct group *grp, char *buf, size_t buflen, st
 import "C"
 
 import (
-	"net"
 	"os"
 	"syscall"
 )
-
-var connection net.Conn
 
 func posix_user(fi os.FileInfo) string {
 	var rv C.int

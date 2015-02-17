@@ -16,6 +16,8 @@ import (
 	"runtime"
 )
 
+var connection net.Conn
+
 func visitfile(fp string, fi os.FileInfo, err error) error {
 	// TODO: extract ACL
 
