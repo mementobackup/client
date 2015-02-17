@@ -17,10 +17,9 @@ import (
 )
 
 var connection net.Conn
+var acl bool
 
 func visitfile(fp string, fi os.FileInfo, err error) error {
-	// TODO: extract ACL
-
 	file := common.JSONFile{}
 
 	if err != nil {
@@ -49,6 +48,14 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 		file.Hash = hex.EncodeToString(common.Md5(fp))
 	}
 
+	if acl {
+		if runtime.GOOS == "linux" {
+			fa := FileACL(fp)
+			file.Acl = fa.List()
+		}
+	} else {
+	}
+
 	// Set result
 	file.Result = "ok"
 	file.Send(connection)
@@ -57,6 +64,7 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 
 func List(conn net.Conn, command *common.JSONCommand) {
 	connection = conn
+	acl = command.ACL
 
 	if command.Directory != "" {
 		// WARNING: filepath.Walk() is inefficient

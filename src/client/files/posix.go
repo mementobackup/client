@@ -23,6 +23,7 @@ static int mygetgrgid_r(int gid, struct group *grp, char *buf, size_t buflen, st
 import "C"
 
 import (
+	"bitbucket.org/ebianchi/memento-common/common"
 	"os"
 	"syscall"
 )
@@ -78,4 +79,11 @@ func posix_group(fi os.FileInfo) string {
 		// Manage error
 	}
 	return result
+}
+
+type FileACL string
+
+func (f FileACL) List() []common.JSONFileAcl {
+	// TODO: extract ACLs
+	return nil
 }
