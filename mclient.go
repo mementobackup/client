@@ -10,15 +10,11 @@ package main
 import (
 	"client"
 	"code.google.com/p/goconf/conf"
-	"crypto/rand"
-	"crypto/tls"
 	"fmt"
 	"github.com/gaal/go-options/options"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
-	"time"
 )
 
 const VERSION = "1.0"
@@ -33,64 +29,6 @@ p,port=               Set port to listen
 l,listen=             Set listen address
 s,ssl=                Set SSL config file
 `
-
-func tlsserve(addr, key, private string) net.Listener {
-	var err error
-	var ln net.Listener
-
-	cert, err := tls.LoadX509KeyPair(key, private)
-	if err != nil {
-		log.Fatalf("Error: %v\n", err)
-	}
-
-	config := tls.Config{Certificates: []tls.Certificate{cert}}
-
-	now := time.Now()
-	config.Time = func() time.Time { return now }
-	config.Rand = rand.Reader
-
-	ln, err = tls.Listen("tcp", addr, &config)
-
-	return ln
-}
-
-func plainserve(addr string) net.Listener {
-	var err error
-	var ln net.Listener
-
-	ln, err = net.Listen("tcp", addr)
-	if err != nil {
-		log.Fatalf("Error: %v\n", err)
-	}
-	return ln
-}
-
-func serve(addr string, ssl *conf.ConfigFile) {
-	var cmd []byte
-	var ln net.Listener
-
-	if ssl != nil {
-		key, _ := ssl.GetString("ssl", "key")
-		private, _ := ssl.GetString("ssl", "private")
-		ln = tlsserve(addr, key, private)
-	} else {
-		ln = plainserve(addr)
-	}
-	defer ln.Close()
-
-	for {
-		conn, err := ln.Accept()
-
-		if err != nil {
-			// handle error
-			fmt.Printf("Error: %v\n", err)
-		}
-
-		cmd, err = ioutil.ReadAll(conn)
-		client.Parse(cmd, conn)
-		conn.Close()
-	}
-}
 
 func main() {
 	var port, listen, address string
@@ -145,8 +83,8 @@ func main() {
 			log.Fatalf("Error: %v\n", err)
 		}
 
-		serve(address, cfg)
+		client.Serve(address, cfg)
 	} else {
-		serve(address, nil)
+		client.Serve(address, nil)
 	}
 }
