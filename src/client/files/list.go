@@ -66,9 +66,11 @@ func List(conn net.Conn, command *common.JSONCommand) {
 	connection = conn
 	acl = command.ACL
 
-	if command.Directory != "" {
-		// WARNING: filepath.Walk() is inefficient
-		filepath.Walk(command.Directory, visitfile)
+	if len(command.Directory) > 0 {
+		for _, item := range command.Directory {
+			// WARNING: filepath.Walk() is inefficient
+			filepath.Walk(item, visitfile)
+		}
 	} else {
 		res := common.JSONResult{"ko", "No directory specified"}
 		res.Send(connection)
