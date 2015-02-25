@@ -24,7 +24,11 @@ import "C"
 
 import (
 	"bitbucket.org/ebianchi/memento-common/common"
+	"bytes"
+	"log"
 	"os"
+	"os/exec"
+	"strings"
 	"syscall"
 )
 
@@ -84,6 +88,33 @@ func posix_group(fi os.FileInfo) string {
 type FileACL string
 
 func (f FileACL) List() []common.JSONFileAcl {
-	// TODO: extract ACLs
-	return nil
+	var result []common.JSONFileAcl
+	var out bytes.Buffer
+
+	process := exec.Command("getfacl", string(f))
+
+	process.Stdout = &out
+	err := process.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	output := strings.Split(out.String(), "\n")
+
+	for _, line := range output {
+		var acl common.JSONFileAcl
+		if len(line) > 0 {
+			if line[:4] == "user" && line[4:6] != "::" {
+				acl.User = strings.Split(line, ":")[1]
+				acl.Mode = strings.Split(line, ":")[2]
+				result = append(result, acl)
+			}
+			if line[:5] == "group" && line[5:7] != "::" {
+				acl.Group = strings.Split(line, ":")[1]
+				acl.Mode = strings.Split(line, ":")[2]
+				result = append(result, acl)
+			}
+		}
+	}
+
+	return result
 }
