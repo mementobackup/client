@@ -35,7 +35,7 @@ func Parse(data []uint8, conn net.Conn) {
 		if cmd.Command.Name == "list" {
 			files.List(conn, &cmd.Command)
 		} else if cmd.Command.Name == "get" {
-			// TODO: Write fode for file getting command
+			common.Sendfile(cmd.Command.Filename, conn)
 		} else if cmd.Command.Name == "put" {
 			// TODO: Write fode for file putting command
 		} else {
