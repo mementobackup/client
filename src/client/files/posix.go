@@ -25,6 +25,7 @@ import "C"
 import (
 	"bitbucket.org/ebianchi/memento-common/common"
 	"bytes"
+	"errors"
 	"log"
 	"os"
 	"os/exec"
@@ -32,7 +33,7 @@ import (
 	"syscall"
 )
 
-func posix_user(fi os.FileInfo) string {
+func posix_user(fi os.FileInfo) (string, error) {
 	var rv C.int
 	var pwd C.struct_passwd
 	var pwdres *C.struct_passwd
@@ -47,13 +48,13 @@ func posix_user(fi os.FileInfo) string {
 
 	rv = C.mygetpwuid_r(C.int(uid), &pwd, (*C.char)(buf), C.size_t(bufSize), &pwdres)
 	if rv != 0 {
-		// Manage error
+		return -1, errors.New("Could not read username")
 	}
 
 	if pwdres != nil {
 		result = C.GoString(pwd.pw_name)
 	} else {
-		// Manage error
+		return -2, errors.New("Could not convert username")
 	}
 
 	return result
@@ -74,13 +75,13 @@ func posix_group(fi os.FileInfo) string {
 
 	rv = C.mygetgrgid_r(C.int(gid), &grp, (*C.char)(buf), C.size_t(bufSize), &grpres)
 	if rv != 0 {
-		// Manage error
+		return -1, errors.New("Could not read groupname")
 	}
 
 	if grpres != nil {
 		result = C.GoString(grp.gr_name)
 	} else {
-		// Manage error
+		return -2, errors.New("Could not convert groupname")
 	}
 	return result
 }
