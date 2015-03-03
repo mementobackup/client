@@ -33,7 +33,7 @@ import (
 	"syscall"
 )
 
-func posix_user(fi os.FileInfo) (int, error) {
+func posix_user(fi os.FileInfo) (string, error) {
 	var rv C.int
 	var pwd C.struct_passwd
 	var pwdres *C.struct_passwd
@@ -48,19 +48,19 @@ func posix_user(fi os.FileInfo) (int, error) {
 
 	rv = C.mygetpwuid_r(C.int(uid), &pwd, (*C.char)(buf), C.size_t(bufSize), &pwdres)
 	if rv != 0 {
-		return -1, errors.New("Could not read username")
+		return "", errors.New("Could not read username")
 	}
 
 	if pwdres != nil {
 		result = C.GoString(pwd.pw_name)
 	} else {
-		return -2, errors.New("Could not convert username")
+		return "", errors.New("Could not convert username")
 	}
 
-	return result
+	return result, nil
 }
 
-func posix_group(fi os.FileInfo) (int, error) {
+func posix_group(fi os.FileInfo) (string, error) {
 	var rv C.int
 	var grp C.struct_group
 	var grpres *C.struct_group
@@ -75,15 +75,15 @@ func posix_group(fi os.FileInfo) (int, error) {
 
 	rv = C.mygetgrgid_r(C.int(gid), &grp, (*C.char)(buf), C.size_t(bufSize), &grpres)
 	if rv != 0 {
-		return -1, errors.New("Could not read groupname")
+		return "", errors.New("Could not read groupname")
 	}
 
 	if grpres != nil {
 		result = C.GoString(grp.gr_name)
 	} else {
-		return -2, errors.New("Could not convert groupname")
+		return "", errors.New("Could not convert groupname")
 	}
-	return result
+	return result, nil
 }
 
 type FileACL string
