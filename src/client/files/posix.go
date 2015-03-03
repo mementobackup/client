@@ -33,7 +33,7 @@ import (
 	"syscall"
 )
 
-func posix_user(fi os.FileInfo) (string, error) {
+func posix_user(fi os.FileInfo) (int, error) {
 	var rv C.int
 	var pwd C.struct_passwd
 	var pwdres *C.struct_passwd
