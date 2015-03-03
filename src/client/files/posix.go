@@ -60,7 +60,7 @@ func posix_user(fi os.FileInfo) (string, error) {
 	return result
 }
 
-func posix_group(fi os.FileInfo) string {
+func posix_group(fi os.FileInfo) (int, error) {
 	var rv C.int
 	var grp C.struct_group
 	var grpres *C.struct_group
