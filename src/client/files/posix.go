@@ -33,6 +33,8 @@ import (
 	"syscall"
 )
 
+type FileACL string
+
 func posix_user(fi os.FileInfo) (string, error) {
 	var rv C.int
 	var pwd C.struct_passwd
@@ -85,8 +87,6 @@ func posix_group(fi os.FileInfo) (string, error) {
 	}
 	return result, nil
 }
-
-type FileACL string
 
 func (f FileACL) List() []common.JSONFileAcl {
 	var result []common.JSONFileAcl
