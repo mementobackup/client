@@ -5,6 +5,8 @@
  License       GPL version 2 (see GPL.txt for details)
 */
 
+// +build !windows
+
 package files
 
 /*
