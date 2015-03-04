@@ -34,8 +34,8 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	file.Mtime = fi.ModTime().Unix()
 
 	if runtime.GOOS == "linux" {
-		file.User, _ = posix_user(fi)
-		file.Group, _ = posix_group(fi)
+		file.User, _ = username(fi)
+		file.Group, _ = groupname(fi)
 		file.Mode = fi.Mode().String()
 	}
 

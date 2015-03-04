@@ -35,7 +35,7 @@ import (
 
 type FileACL string
 
-func posix_user(fi os.FileInfo) (string, error) {
+func username(fi os.FileInfo) (string, error) {
 	var rv C.int
 	var pwd C.struct_passwd
 	var pwdres *C.struct_passwd
@@ -62,7 +62,7 @@ func posix_user(fi os.FileInfo) (string, error) {
 	return result, nil
 }
 
-func posix_group(fi os.FileInfo) (string, error) {
+func groupname(fi os.FileInfo) (string, error) {
 	var rv C.int
 	var grp C.struct_group
 	var grpres *C.struct_group
