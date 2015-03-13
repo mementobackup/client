@@ -9,9 +9,9 @@ package main
 
 import (
 	"client"
-	"code.google.com/p/goconf/conf"
 	"fmt"
 	"github.com/gaal/go-options/options"
+	"github.com/go-ini/ini"
 	"log"
 	"net"
 	"os"
@@ -77,7 +77,7 @@ func main() {
 	}
 
 	if opts.GetBool("ssl") {
-		cfg, err := conf.ReadConfigFile(opts.Get("ssl"))
+		cfg, err := ini.Load([]byte{}, opts.Get("ssl"))
 		if err != nil {
 			// handle error
 			log.Fatalf("Error: %v\n", err)

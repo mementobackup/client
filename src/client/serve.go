@@ -8,10 +8,10 @@
 package client
 
 import (
-	"code.google.com/p/goconf/conf"
 	"crypto/rand"
 	"crypto/tls"
 	"fmt"
+	"github.com/go-ini/ini"
 	"io/ioutil"
 	"log"
 	"net"
@@ -49,13 +49,13 @@ func plainserve(addr string) net.Listener {
 	return ln
 }
 
-func Serve(addr string, ssl *conf.ConfigFile) {
+func Serve(addr string, ssl *ini.File) {
 	var cmd []byte
 	var ln net.Listener
 
 	if ssl != nil {
-		key, _ := ssl.GetString("ssl", "key")
-		private, _ := ssl.GetString("ssl", "private")
+		key := ssl.Section("ssl").Key("key").String()
+		private := ssl.Section("ssl").Key("private").String()
 		ln = tlsserve(addr, key, private)
 	} else {
 		ln = plainserve(addr)
