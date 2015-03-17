@@ -13,26 +13,7 @@ import (
 	"encoding/json"
 	"net"
 	"os"
-	"os/exec"
-	"runtime"
 )
-
-// NOTE: the function is very dangerous, because is possible to create hangs on the system
-func execute(command string) error {
-	var cmd *exec.Cmd
-
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command("cmd.exe", "/c", command)
-	} else {
-		cmd = exec.Command("sh", "-c", command)
-	}
-
-	if err := cmd.Run(); err != nil {
-		// FIXME: due the specific software for now is not possible to manage exit with error from external program
-	}
-
-	return nil
-}
 
 func Parse(data []uint8, conn net.Conn) {
 	var cmd common.JSONMessage
@@ -48,7 +29,7 @@ func Parse(data []uint8, conn net.Conn) {
 		if cmd.Command.Name == "exit" {
 			os.Exit(0)
 		} else if cmd.Command.Name == "exec" {
-			execute(cmd.Command.Value)
+			common.ExecuteCMD(cmd.Command.Value)
 		}
 	case "file":
 		if cmd.Command.Name == "list" {
