@@ -37,7 +37,7 @@ func Parse(data []uint8, conn net.Conn) {
 		} else if cmd.Command.Name == "get" {
 			common.Sendfile(cmd.Command.Filename, conn)
 		} else if cmd.Command.Name == "put" {
-			// TODO: Write fode for file putting command
+			// TODO: Write code for file putting command
 		} else {
 			res := common.JSONResult{"ko", "Command unknown: " + cmd.Command.Name}
 			res.Send(conn)
