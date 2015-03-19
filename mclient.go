@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"github.com/gaal/go-options/options"
 	"github.com/go-ini/ini"
-	"log"
+	"github.com/op/go-logging"
 	"net"
 	"os"
 )
@@ -28,9 +28,28 @@ v,version             Print version
 p,port=               Set port to listen
 l,listen=             Set listen address
 s,ssl=                Set SSL config file
+D,debug               Enable debug messages
 `
 
+func setLog(debug bool) *logging.Logger {
+    var log = logging.MustGetLogger("Memento Client")
+
+    backend := logging.NewLogBackend(os.Stderr, "", 0)
+    backendLeveled := logging.AddModuleLevel(backend)
+
+    if debug {
+        backendLeveled.SetLevel(logging.DEBUG, "")
+    } else {
+        backendLeveled.SetLevel(logging.CRITICAL, "")
+    }
+
+    logging.SetBackend(backendLeveled)
+
+    return log
+}
+
 func main() {
+    var log *logging.Logger
 	var port, listen, address string
 
 	s := options.NewOptions(SPEC)
@@ -53,11 +72,18 @@ func main() {
 		s.PrintUsageAndExit("Memento client " + VERSION)
 	}
 
+    // Enable debug
+    if opts.GetBool("debug") {
+        log = setLog(true)
+    } else {
+        log = setLog(false)
+    }
+
 	// Get port to listen
 	if opts.GetBool("port") {
 		port = opts.Get("port")
 	} else {
-		fmt.Println("No port specified")
+		log.Fatal("No port specified")
 		os.Exit(1)
 	}
 
@@ -66,25 +92,28 @@ func main() {
 		if addr := net.ParseIP(opts.Get("listen")); addr != nil {
 			listen = addr.String()
 		} else {
-			log.Fatalln("Invalid IP address")
+			log.Fatal("Invalid IP address")
 		}
 	}
 
 	if listen == "" {
+        log.Debug("Listen on all interfaces")
 		address = ":" + port
 	} else {
+        log.Debug("Listen on address " + listen)
 		address = listen + ":" + port
 	}
 
 	if opts.GetBool("ssl") {
+        log.Debug("SSL enabled")
 		cfg, err := ini.Load([]byte{}, opts.Get("ssl"))
 		if err != nil {
 			// handle error
 			log.Fatalf("Error: %v\n", err)
 		}
 
-		client.Serve(address, cfg)
+		client.Serve(address, log, cfg)
 	} else {
-		client.Serve(address, nil)
+		client.Serve(address, log, nil)
 	}
 }

@@ -13,12 +13,14 @@ import (
 	"encoding/json"
 	"net"
 	"os"
+    "github.com/op/go-logging"
 )
 
-func Parse(data []uint8, conn net.Conn) {
+func Parse(data []uint8, log *logging.Logger, conn net.Conn) {
 	var cmd common.JSONMessage
 
 	if err := json.Unmarshal(data, &cmd); err != nil {
+        log.Debug("Error when parsing data: " + string(data))
 		res := common.JSONResult{"ko", "Malformed command: " + err.Error()}
 		res.Send(conn)
 		return

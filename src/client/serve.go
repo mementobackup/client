@@ -10,8 +10,8 @@ package client
 import (
 	"crypto/rand"
 	"crypto/tls"
-	"fmt"
 	"github.com/go-ini/ini"
+	"github.com/op/go-logging"
 	"io/ioutil"
 	"log"
 	"net"
@@ -49,7 +49,7 @@ func plainserve(addr string) net.Listener {
 	return ln
 }
 
-func Serve(addr string, ssl *ini.File) {
+func Serve(addr string, log *logging.Logger, ssl *ini.File) {
 	var cmd []byte
 	var ln net.Listener
 
@@ -57,8 +57,10 @@ func Serve(addr string, ssl *ini.File) {
 		key := ssl.Section("ssl").Key("key").String()
 		private := ssl.Section("ssl").Key("private").String()
 		ln = tlsserve(addr, key, private)
+        log.Debug("Opened SSL socket")
 	} else {
 		ln = plainserve(addr)
+        log.Debug("Opened plain socket")
 	}
 	defer ln.Close()
 
@@ -67,11 +69,13 @@ func Serve(addr string, ssl *ini.File) {
 
 		if err != nil {
 			// handle error
-			fmt.Printf("Error: %v\n", err)
+			log.Error("Error: %v\n", err)
 		}
+        log.Debug("Connection from " + conn.RemoteAddr().String() + " accepted")
 
 		cmd, err = ioutil.ReadAll(conn)
-		Parse(cmd, conn)
+        log.Debug("Remote data readed")
+		Parse(cmd, log, conn)
 		conn.Close()
 	}
 }
