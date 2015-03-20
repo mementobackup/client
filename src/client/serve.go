@@ -8,11 +8,11 @@
 package client
 
 import (
+	"bufio"
 	"crypto/rand"
 	"crypto/tls"
 	"github.com/go-ini/ini"
 	"github.com/op/go-logging"
-	"io/ioutil"
 	"log"
 	"net"
 	"time"
@@ -57,24 +57,25 @@ func Serve(addr string, log *logging.Logger, ssl *ini.File) {
 		key := ssl.Section("ssl").Key("key").String()
 		private := ssl.Section("ssl").Key("private").String()
 		ln = tlsserve(addr, key, private)
-        log.Debug("Opened SSL socket")
+		log.Debug("Opened SSL socket")
 	} else {
 		ln = plainserve(addr)
-        log.Debug("Opened plain socket")
+		log.Debug("Opened plain socket")
 	}
 	defer ln.Close()
 
 	for {
 		conn, err := ln.Accept()
+		buff := bufio.NewReader(conn)
 
 		if err != nil {
 			// handle error
 			log.Error("Error: %v\n", err)
 		}
-        log.Debug("Connection from " + conn.RemoteAddr().String() + " accepted")
+		log.Debug("Connection from " + conn.RemoteAddr().String() + " accepted")
 
-		cmd, err = ioutil.ReadAll(conn)
-        log.Debug("Remote data readed")
+		cmd, err = buff.ReadBytes('\n')
+		log.Debug("Remote data readed")
 		Parse(cmd, log, conn)
 		conn.Close()
 	}
