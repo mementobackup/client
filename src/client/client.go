@@ -32,16 +32,16 @@ func Parse(data []uint8, log *logging.Logger, conn net.Conn) {
 		log.Debug("System context requested")
 		if cmd.Command.Name == "exit" {
 			log.Debug("Exit command requested")
-            res := common.JSONResult{"ok", "Client closed"}
-            res.Send(conn)
+			res := common.JSONResult{"ok", "Client closed"}
+			res.Send(conn)
 			os.Exit(0)
 		} else if cmd.Command.Name == "exec" {
 			log.Debug("Execute command requested")
 			if err := common.ExecuteCMD(cmd.Command.Value); err != nil {
 				log.Debug("Error when executing command: " + err.Error())
 			}
-            res := common.JSONResult{"ok", "Command executed"}
-            res.Send(conn)
+			res := common.JSONResult{"ok", "Command executed"}
+			res.Send(conn)
 		}
 	case "file":
 		log.Debug("File context requested")
