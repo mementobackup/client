@@ -31,22 +31,7 @@ s,ssl=                Set SSL config file
 D,debug               Enable debug messages
 `
 
-func setLog(debug bool) *logging.Logger {
-    var log = logging.MustGetLogger("Memento Client")
 
-    backend := logging.NewLogBackend(os.Stderr, "", 0)
-    backendLeveled := logging.AddModuleLevel(backend)
-
-    if debug {
-        backendLeveled.SetLevel(logging.DEBUG, "")
-    } else {
-        backendLeveled.SetLevel(logging.CRITICAL, "")
-    }
-
-    logging.SetBackend(backendLeveled)
-
-    return log
-}
 
 func main() {
     var log *logging.Logger
@@ -74,9 +59,9 @@ func main() {
 
     // Enable debug
     if opts.GetBool("debug") {
-        log = setLog(true)
+        log = setlog(true)
     } else {
-        log = setLog(false)
+        log = setlog(false)
     }
 
 	// Get port to listen
