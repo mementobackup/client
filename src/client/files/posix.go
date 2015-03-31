@@ -28,7 +28,7 @@ import (
 	"bitbucket.org/ebianchi/memento-common/common"
 	"bytes"
 	"errors"
-	"log"
+	"github.com/op/go-logging"
 	"os"
 	"os/exec"
 	"strings"
@@ -90,7 +90,7 @@ func groupname(fi os.FileInfo) (string, error) {
 	return result, nil
 }
 
-func (f FileACL) List() []common.JSONFileAcl {
+func (f FileACL) List(log *logging.Logger) []common.JSONFileAcl {
 	var result []common.JSONFileAcl
 	var out bytes.Buffer
 

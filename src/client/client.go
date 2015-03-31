@@ -47,7 +47,7 @@ func Parse(log *logging.Logger, data []uint8, conn net.Conn) {
 		log.Debug("File context requested")
 		if cmd.Command.Name == "list" {
 			log.Debug("List command requested")
-			files.List(conn, &cmd.Command)
+			files.List(log, conn, &cmd.Command)
 		} else if cmd.Command.Name == "get" {
 			log.Debug("Get command requested")
 			common.Sendfile(cmd.Command.Filename, conn)

@@ -13,12 +13,11 @@ import (
 	"crypto/tls"
 	"github.com/go-ini/ini"
 	"github.com/op/go-logging"
-	"log"
 	"net"
 	"time"
 )
 
-func tlsserve(addr, key, private string) net.Listener {
+func tlsserve(log *logging.Logger, addr, key, private string) net.Listener {
 	var err error
 	var ln net.Listener
 
@@ -38,7 +37,7 @@ func tlsserve(addr, key, private string) net.Listener {
 	return ln
 }
 
-func plainserve(addr string) net.Listener {
+func plainserve(log *logging.Logger, addr string) net.Listener {
 	var err error
 	var ln net.Listener
 
@@ -56,10 +55,10 @@ func Serve(log *logging.Logger, addr string, ssl *ini.File) {
 	if ssl != nil {
 		key := ssl.Section("ssl").Key("key").String()
 		private := ssl.Section("ssl").Key("private").String()
-		ln = tlsserve(addr, key, private)
+		ln = tlsserve(log, addr, key, private)
 		log.Debug("Opened SSL socket")
 	} else {
-		ln = plainserve(addr)
+		ln = plainserve(log, addr)
 		log.Debug("Opened plain socket")
 	}
 	defer ln.Close()

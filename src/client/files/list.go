@@ -10,6 +10,7 @@ package files
 import (
 	"bitbucket.org/ebianchi/memento-common/common"
 	"encoding/hex"
+	"github.com/op/go-logging"
 	"net"
 	"os"
 	"path/filepath"
@@ -18,6 +19,7 @@ import (
 
 var connection net.Conn
 var acl bool
+var log *logging.Logger
 
 func visitfile(fp string, fi os.FileInfo, err error) error {
 	file := common.JSONFile{}
@@ -51,7 +53,7 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	if acl {
 		if runtime.GOOS == "linux" {
 			fa := FileACL(fp)
-			file.Acl = fa.List()
+			file.Acl = fa.List(log)
 		}
 	} else {
 	}
@@ -62,9 +64,10 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	return nil
 }
 
-func List(conn net.Conn, command *common.JSONCommand) {
+func List(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 	connection = conn
 	acl = command.ACL
+	log = logger
 
 	if len(command.Directory) > 0 {
 		for _, item := range command.Directory {
