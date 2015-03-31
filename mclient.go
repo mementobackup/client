@@ -33,6 +33,9 @@ D,debug               Enable debug messages
 
 func setlog(debug bool) *logging.Logger {
 	var log = logging.MustGetLogger("Memento Client")
+	var format = logging.MustStringFormatter(
+		"%{time:2006-01-02 15:04:05.000} %{level} Memento - %{message}",
+	)
 
 	backend := logging.NewLogBackend(os.Stderr, "", 0)
 	backendLeveled := logging.AddModuleLevel(backend)
@@ -42,13 +45,15 @@ func setlog(debug bool) *logging.Logger {
 	} else {
 		backendLeveled.SetLevel(logging.CRITICAL, "")
 	}
+
 	logging.SetBackend(backendLeveled)
+	logging.SetFormatter(format)
 
 	return log
 }
 
 func main() {
-    var log *logging.Logger
+	var log *logging.Logger
 	var port, listen, address string
 
 	s := options.NewOptions(SPEC)
@@ -71,12 +76,12 @@ func main() {
 		s.PrintUsageAndExit("Memento client " + VERSION)
 	}
 
-    // Enable debug
-    if opts.GetBool("debug") {
-        log = setlog(true)
-    } else {
-        log = setlog(false)
-    }
+	// Enable debug
+	if opts.GetBool("debug") {
+		log = setlog(true)
+	} else {
+		log = setlog(false)
+	}
 
 	// Get port to listen
 	if opts.GetBool("port") {
@@ -96,15 +101,15 @@ func main() {
 	}
 
 	if listen == "" {
-        log.Debug("Listen on all interfaces")
+		log.Debug("Listen on all interfaces")
 		address = ":" + port
 	} else {
-        log.Debug("Listen on address " + listen)
+		log.Debug("Listen on address " + listen)
 		address = listen + ":" + port
 	}
 
 	if opts.GetBool("ssl") {
-        log.Debug("SSL enabled")
+		log.Debug("SSL enabled")
 		cfg, err := ini.Load([]byte{}, opts.Get("ssl"))
 		if err != nil {
 			// handle error
