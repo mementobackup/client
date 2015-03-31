@@ -116,8 +116,8 @@ func main() {
 			log.Fatalf("Error: %v\n", err)
 		}
 
-		client.Serve(address, log, cfg)
+		client.Serve(log, address, cfg)
 	} else {
-		client.Serve(address, log, nil)
+		client.Serve(log, address, nil)
 	}
 }

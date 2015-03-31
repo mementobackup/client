@@ -16,7 +16,7 @@ import (
 	"os"
 )
 
-func Parse(data []uint8, log *logging.Logger, conn net.Conn) {
+func Parse(log *logging.Logger, data []uint8, conn net.Conn) {
 	var cmd common.JSONMessage
 
 	if err := json.Unmarshal(data, &cmd); err != nil {

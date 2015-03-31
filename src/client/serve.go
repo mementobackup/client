@@ -49,7 +49,7 @@ func plainserve(addr string) net.Listener {
 	return ln
 }
 
-func Serve(addr string, log *logging.Logger, ssl *ini.File) {
+func Serve(log *logging.Logger, addr string, ssl *ini.File) {
 	var cmd []byte
 	var ln net.Listener
 
@@ -76,7 +76,7 @@ func Serve(addr string, log *logging.Logger, ssl *ini.File) {
 
 		cmd, err = buff.ReadBytes('\n')
 		log.Debug("Remote data readed")
-		Parse(cmd, log, conn)
+		Parse(log, cmd, conn)
 		conn.Close()
 	}
 }
