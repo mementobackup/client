@@ -11,6 +11,7 @@ package files
 
 import (
 	"bitbucket.org/ebianchi/memento-common/common"
+	"github.com/op/go-logging"
 	"os"
 )
 
@@ -26,7 +27,7 @@ func groupname(fi os.FileInfo) (string, error) {
 	return "", nil
 }
 
-func (f FileACL) List() []common.JSONFileAcl {
+func (f FileACL) List(log *logging.Logger) []common.JSONFileAcl {
 	// TODO: write code for getting windows file ACLs
 	return nil
 }
