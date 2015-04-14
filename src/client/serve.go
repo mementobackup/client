@@ -17,14 +17,14 @@ import (
 	"time"
 )
 
-func tlsserve(log *logging.Logger, addr, key, private string) net.Listener {
+func tlsserve(log *logging.Logger, addr, certificate, key string) net.Listener {
 	var err error
 	var ln net.Listener
 
-	log.Debug("SSL certificate: %s", key)
-	log.Debug("SSL private key: %s", private)
+	log.Debug("SSL certificate: %s", certificate)
+	log.Debug("SSL private key: %s", key)
 
-	cert, err := tls.LoadX509KeyPair(key, private)
+	cert, err := tls.LoadX509KeyPair(certificate, key)
 	if err != nil {
 		log.Fatalf("Error when instantiate SSL connection: %v", err)
 	}
@@ -62,10 +62,10 @@ func Serve(log *logging.Logger, addr string, ssl *ini.File) {
 	var ln net.Listener
 
 	if ssl != nil {
-		key := ssl.Section("ssl").Key("certificate").String()
-		private := ssl.Section("ssl").Key("key").String()
+		certificate := ssl.Section("ssl").Key("certificate").String()
+		key := ssl.Section("ssl").Key("key").String()
 
-		ln = tlsserve(log, addr, key, private)
+		ln = tlsserve(log, addr, certificate, key)
 		log.Debug("Opened SSL socket")
 	} else {
 		ln = plainserve(log, addr)
