@@ -26,7 +26,10 @@ func tlsserve(log *logging.Logger, addr, key, private string) net.Listener {
 		log.Fatalf("Error: %v\n", err)
 	}
 
-	config := tls.Config{Certificates: []tls.Certificate{cert}}
+	config := tls.Config{
+		InsecureSkipVerify: true,
+		Certificates: []tls.Certificate{cert},
+	}
 
 	now := time.Now()
 	config.Time = func() time.Time { return now }
@@ -53,8 +56,9 @@ func Serve(log *logging.Logger, addr string, ssl *ini.File) {
 	var ln net.Listener
 
 	if ssl != nil {
-		key := ssl.Section("ssl").Key("key").String()
-		private := ssl.Section("ssl").Key("private").String()
+		key := ssl.Section("ssl").Key("certificate").String()
+		private := ssl.Section("ssl").Key("key").String()
+
 		ln = tlsserve(log, addr, key, private)
 		log.Debug("Opened SSL socket")
 	} else {
