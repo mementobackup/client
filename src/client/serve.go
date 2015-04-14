@@ -21,9 +21,12 @@ func tlsserve(log *logging.Logger, addr, key, private string) net.Listener {
 	var err error
 	var ln net.Listener
 
+	log.Debug("SSL certificate: %s", key)
+	log.Debug("SSL private key: %s", private)
+
 	cert, err := tls.LoadX509KeyPair(key, private)
 	if err != nil {
-		log.Fatalf("Error: %v\n", err)
+		log.Fatalf("Error when instantiate SSL connection: %v", err)
 	}
 
 	config := tls.Config{
@@ -36,6 +39,9 @@ func tlsserve(log *logging.Logger, addr, key, private string) net.Listener {
 	config.Rand = rand.Reader
 
 	ln, err = tls.Listen("tcp", addr, &config)
+	if err != nil {
+		log.Fatalf("Error when open connecting with host: %v", err)
+	}
 
 	return ln
 }
@@ -46,7 +52,7 @@ func plainserve(log *logging.Logger, addr string) net.Listener {
 
 	ln, err = net.Listen("tcp", addr)
 	if err != nil {
-		log.Fatalf("Error: %v\n", err)
+		log.Fatalf("Error: %v", err)
 	}
 	return ln
 }
