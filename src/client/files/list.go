@@ -22,10 +22,11 @@ var acl bool
 var log *logging.Logger
 
 func visitfile(fp string, fi os.FileInfo, err error) error {
-	file := common.JSONFile{}
+	var res common.JSONResult
+	var file common.JSONFile
 
 	if err != nil {
-		res := common.JSONResult{"ko", err.Error()}
+		res = common.JSONResult{Result: "ko", Message: err.Error()}
 		res.Send(connection)
 		return nil
 	}
@@ -59,8 +60,9 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	}
 
 	// Set result
-	file.Result = "ok"
-	file.Send(connection)
+	res.Result = "ok"
+	res.Data = file
+	res.Send(connection)
 	return nil
 }
 
@@ -75,7 +77,7 @@ func List(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 			filepath.Walk(item, visitfile)
 		}
 	} else {
-		res := common.JSONResult{"ko", "No directory specified"}
+		res := common.JSONResult{Result: "ko", Message: "No directory specified"}
 		res.Send(connection)
 	}
 }

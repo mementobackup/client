@@ -21,7 +21,7 @@ func Parse(log *logging.Logger, data []uint8, conn net.Conn) {
 
 	if err := json.Unmarshal(data, &cmd); err != nil {
 		log.Debug("Error when parsing data: " + string(data))
-		res := common.JSONResult{"ko", "Malformed command: " + err.Error()}
+		res := common.JSONResult{Result: "ko", Message: "Malformed command: " + err.Error()}
 		res.Send(conn)
 		return
 	}
@@ -32,7 +32,7 @@ func Parse(log *logging.Logger, data []uint8, conn net.Conn) {
 		log.Debug("System context requested")
 		if cmd.Command.Name == "exit" {
 			log.Debug("Exit command requested")
-			res := common.JSONResult{"ok", "Client closed"}
+			res := common.JSONResult{Result: "ok", Message: "Client closed"}
 			res.Send(conn)
 			os.Exit(0)
 		} else if cmd.Command.Name == "exec" {
@@ -40,7 +40,7 @@ func Parse(log *logging.Logger, data []uint8, conn net.Conn) {
 			if err := common.ExecuteCMD(cmd.Command.Value); err != nil {
 				log.Debug("Error when executing command: " + err.Error())
 			}
-			res := common.JSONResult{"ok", "Command executed"}
+			res := common.JSONResult{Result: "ok", Message: "Command executed"}
 			res.Send(conn)
 		}
 	case "file":
@@ -56,12 +56,12 @@ func Parse(log *logging.Logger, data []uint8, conn net.Conn) {
 			// TODO: Write code for file putting command
 		} else {
 			log.Debug("Invalid command requested: " + cmd.Command.Name)
-			res := common.JSONResult{"ko", "Command unknown: " + cmd.Command.Name}
+			res := common.JSONResult{Result: "ko", Message: "Command unknown: " + cmd.Command.Name}
 			res.Send(conn)
 		}
 	default:
 		log.Debug("Invalid context requested: " + cmd.Context)
-		res := common.JSONResult{"ko", "Context unknown: " + cmd.Context}
+		res := common.JSONResult{Result: "ko", Message: "Context unknown: " + cmd.Context}
 		res.Send(conn)
 	}
 }
