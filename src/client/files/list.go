@@ -45,10 +45,12 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	// Set type of element (file or directory)
 	if fi.IsDir() {
 		file.Type = "directory"
+		file.Size = fi.Size()
 	} else if fi.Mode() & os.ModeSymlink == os.ModeSymlink {
 		file.Type = "symlink"
-		link, err := os.Readlink(fp)
+		file.Size = fi.Size()
 
+		link, err := os.Readlink(fp)
 		if err != nil {
 			log.Debug("Error when readlink for " + fp + ": " + err.Error())
 		} else {
