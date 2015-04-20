@@ -65,7 +65,6 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 			fa := FileACL(fp)
 			file.Acl = fa.List(log)
 		}
-	} else {
 	}
 
 	// Set result
