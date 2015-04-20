@@ -45,13 +45,22 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	// Set type of element (file or directory)
 	if fi.IsDir() {
 		file.Type = "directory"
+	} else if fi.Mode() & os.ModeSymlink == os.ModeSymlink {
+		file.Type = "symlink"
+		link, err := os.Readlink(fp)
+
+		if err != nil {
+			log.Debug("Error when readlink for " + fp + ": " + err.Error())
+		} else {
+			file.Link = link
+		}
 	} else {
 		file.Type = "file"
 		file.Size = fi.Size()
 		file.Hash = hex.EncodeToString(common.Md5(fp))
 	}
 
-	if acl {
+	if acl && file.Type != "symlink" {
 		if runtime.GOOS == "linux" {
 			fa := FileACL(fp)
 			file.Acl = fa.List(log)
