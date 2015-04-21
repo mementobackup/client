@@ -31,3 +31,8 @@ func (f FileACL) List(log *logging.Logger) []common.JSONFileAcl {
 	// TODO: write code for getting windows file ACLs
 	return nil
 }
+
+func ctime(fi os.FileInfo) int64 {
+	// TODO: write code for getting windows ctime
+	return 0
+}

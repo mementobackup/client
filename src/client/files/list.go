@@ -40,6 +40,7 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 		file.User, _ = username(fi)
 		file.Group, _ = groupname(fi)
 		file.Mode = fi.Mode().String()
+		file.Ctime = ctime(fi)
 	}
 
 	// Set type of element (file or directory)

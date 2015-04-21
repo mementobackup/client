@@ -33,6 +33,7 @@ import (
 	"os/exec"
 	"strings"
 	"syscall"
+	"time"
 )
 
 type FileACL string
@@ -118,6 +119,15 @@ func (f FileACL) List(log *logging.Logger) []common.JSONFileAcl {
 			}
 		}
 	}
+
+	return result
+}
+
+func ctime(fi os.FileInfo) int64 {
+	var result int64
+
+	stat := fi.Sys().(*syscall.Stat_t)
+	result = time.Unix(int64(stat.Ctim.Sec), int64(stat.Ctim.Nsec)).Unix()
 
 	return result
 }
