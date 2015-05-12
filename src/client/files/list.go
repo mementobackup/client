@@ -36,7 +36,7 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	file.Os = runtime.GOOS
 	file.Mtime = fi.ModTime().Unix()
 
-	if runtime.GOOS == "linux" {
+	if runtime.GOOS != "windows" {
 		file.User, _ = username(fi)
 		file.Group, _ = groupname(fi)
 		file.Mode = fi.Mode().String()
@@ -64,7 +64,7 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	}
 
 	if acl && file.Type != "symlink" {
-		if runtime.GOOS == "linux" {
+		if runtime.GOOS != "windows" {
 			fa := FileACL(fp)
 			file.Acl = fa.List(log)
 		}
