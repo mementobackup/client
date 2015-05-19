@@ -109,12 +109,12 @@ func (f FileACL) List(log *logging.Logger) []common.JSONFileAcl {
 		if len(line) > 0 {
 			if line[:4] == "user" && line[4:6] != "::" {
 				acl.User = strings.Split(line, ":")[1]
-				acl.Mode = strings.Split(line, ":")[2]
+				acl.Mode = strings.Split(line, ":")[2][:3]
 				result = append(result, acl)
 			}
 			if line[:5] == "group" && line[5:7] != "::" {
 				acl.Group = strings.Split(line, ":")[1]
-				acl.Mode = strings.Split(line, ":")[2]
+				acl.Mode = strings.Split(line, ":")[2][:3]
 				result = append(result, acl)
 			}
 		}
