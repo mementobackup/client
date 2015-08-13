@@ -30,31 +30,37 @@ func Parse(log *logging.Logger, data []uint8, conn net.Conn) {
 	switch cmd.Context {
 	case "system":
 		log.Debug("System context requested")
-		if cmd.Command.Name == "exit" {
+		switch cmd.Command.Name {
+		case "exit":
 			log.Debug("Exit command requested")
 			res := common.JSONResult{Result: "ok", Message: "Client closed"}
 			res.Send(conn)
 			os.Exit(0)
-		} else if cmd.Command.Name == "exec" {
+		case "exec":
 			log.Debug("Execute command requested")
 			if err := common.ExecuteCMD(cmd.Command.Value); err != nil {
 				log.Debug("Error when executing command: " + err.Error())
 			}
 			res := common.JSONResult{Result: "ok", Message: "Command executed"}
 			res.Send(conn)
+		default:
+			log.Debug("Invalid command requested: " + cmd.Command.Name)
+			res := common.JSONResult{Result: "ko", Message: "Command unknown: " + cmd.Command.Name}
+			res.Send(conn)
 		}
 	case "file":
 		log.Debug("File context requested")
-		if cmd.Command.Name == "list" {
+		switch cmd.Command.Name {
+		case "list":
 			log.Debug("List command requested")
 			files.List(log, conn, &cmd.Command)
-		} else if cmd.Command.Name == "get" {
+		case "get":
 			log.Debug("Get command requested")
 			common.Sendfile(cmd.Command.Filename, conn)
-		} else if cmd.Command.Name == "put" {
+		case "put":
 			log.Debug("Put command requested")
 			// TODO: Write code for file putting command
-		} else {
+		default:
 			log.Debug("Invalid command requested: " + cmd.Command.Name)
 			res := common.JSONResult{Result: "ko", Message: "Command unknown: " + cmd.Command.Name}
 			res.Send(conn)
