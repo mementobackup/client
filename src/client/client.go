@@ -38,7 +38,7 @@ func Parse(log *logging.Logger, data []uint8, conn net.Conn) {
 			os.Exit(0)
 		case "exec":
 			log.Debug("Execute command requested")
-			if err := common.ExecuteCMD(cmd.Command.Value); err != nil {
+			if err := common.ExecuteCMD(cmd.Command.Cmd); err != nil {
 				log.Debug("Error when executing command: " + err.Error())
 			}
 			res := common.JSONResult{Result: "ok", Message: "Command executed"}
