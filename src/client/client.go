@@ -56,7 +56,7 @@ func Parse(log *logging.Logger, data []uint8, conn net.Conn) {
 			files.List(log, conn, &cmd.Command)
 		case "get":
 			log.Debug("Get command requested")
-			common.Sendfile(cmd.Command.Filename, conn)
+			common.Sendfile(cmd.Command.File, conn)
 		case "put":
 			log.Debug("Put command requested")
 			// TODO: Write code for file putting command
