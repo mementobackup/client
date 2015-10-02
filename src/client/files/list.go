@@ -82,8 +82,8 @@ func List(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 	acl = command.ACL
 	log = logger
 
-	if len(command.Directory) > 0 {
-		for _, item := range command.Directory {
+	if len(command.Paths) > 0 {
+		for _, item := range command.Paths {
 			// WARNING: filepath.Walk() is inefficient
 			filepath.Walk(item, visitfile)
 		}

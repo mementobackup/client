@@ -56,10 +56,10 @@ func Parse(log *logging.Logger, data []uint8, conn net.Conn) {
 			files.List(log, conn, &cmd.Command)
 		case "get":
 			log.Debug("Get command requested")
-			common.Sendfile(cmd.Command.File, conn)
+			common.Sendfile(cmd.Command.Element.Name, conn)
 		case "put":
 			log.Debug("Put command requested")
-			// TODO: Write code for file putting command
+			files.Put(log, conn, &cmd.Command)
 		default:
 			log.Debug("Invalid command requested: " + cmd.Command.Name)
 			res := common.JSONResult{Result: "ko", Message: "Command unknown: " + cmd.Command.Name}
