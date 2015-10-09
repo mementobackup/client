@@ -31,6 +31,7 @@ import (
 	"github.com/op/go-logging"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -128,6 +129,88 @@ func ctime(fi os.FileInfo) int64 {
 
 	stat := fi.Sys().(*syscall.Stat_t)
 	result = time.Unix(int64(stat.Ctim.Sec), int64(stat.Ctim.Nsec)).Unix()
+
+	return result
+}
+
+func convert(perms string) os.FileMode {
+	var others, group, user int
+	var sticky, sgid, suid bool
+	var result os.FileMode
+
+	others = 0
+	group = 0
+	user = 0
+
+	sticky = false
+	suid = false
+	sgid = false
+
+	compute := func(perm string) int {
+		if perm == "r" {
+			return 4
+		} else if perm == "w" {
+			return 2
+		} else if perm == "x" || perm == "s" || perm == "t" {
+			return 1
+		} else {
+			return 0
+		}
+	}
+
+	for i := 0; i < len(perms); i++ {
+		perm := string(perms[len(perms)-1-i])
+		if perm != "-" {
+			if i == 0 || i == 1 || i == 2 {
+				if perm == "t" {
+					others += compute(perm)
+					sticky = true
+				} else if perm == "T" {
+					sticky = true
+				} else {
+					others += compute(perm)
+				}
+			}
+
+			if i == 3 || i == 4 || i == 5 {
+				if perm == "s" {
+					group += compute(perm)
+					sgid = true
+				} else if perm == "S" {
+					sgid = true
+				} else {
+					group += compute(perm)
+				}
+			}
+
+			if i == 6 || i == 7 || i == 8 {
+				if perm == "s" {
+					user += compute(perm)
+					suid = true
+				} else if perm == "S" {
+					suid = true
+				} else {
+					user += compute(perm)
+				}
+
+			}
+		}
+	}
+	octal, _ := strconv.ParseInt(strconv.Itoa(user)+strconv.Itoa(group)+strconv.Itoa(others), 8, 32)
+
+	result = os.FileMode(octal)
+
+	if suid {
+		result = result | os.ModeSetuid
+	}
+
+	if sgid {
+		result = result | os.ModeSetgid
+	}
+
+	if sticky {
+		result = result | os.ModeSticky
+	}
 
 	return result
 }
