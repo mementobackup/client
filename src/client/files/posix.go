@@ -134,8 +134,6 @@ func ctime(fi os.FileInfo) int64 {
 }
 
 func perms(str string) os.FileMode {
-	var octal string
-
 	computeperms := func(perms string) string {
 		var oct int
 		for _, perm := range perms {
@@ -171,7 +169,7 @@ func perms(str string) os.FileMode {
 	mode, perms := str[:len(str)-9], str[len(str)-9:]
 	user, group, others := perms[0:3], perms[3:6], perms[6:9]
 
-	octal = computeperms(user) + computeperms(group) + computeperms(others)
+	octal := computeperms(user) + computeperms(group) + computeperms(others)
 	conv, _ := strconv.ParseInt(octal, 8, 32)
 
 	result := computemodes(conv, mode)
