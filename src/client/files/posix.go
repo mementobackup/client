@@ -160,8 +160,8 @@ func perms(str string) os.FileMode {
 			case "t":
 				result |= os.ModeSticky
 			}
-			return result
 		}
+		return result
 	}
 
 	mode, perms := str[:len(str)-9], str[len(str)-9:]
