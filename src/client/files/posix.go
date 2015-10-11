@@ -136,25 +136,23 @@ func ctime(fi os.FileInfo) int64 {
 func perms(str string) os.FileMode {
 	computeperms := func(perms string) string {
 		var oct int
-		for _, perm := range perms {
-			switch string(perm) {
-			case "r":
-				oct += 4
-			case "w":
-				oct += 2
-			case "x":
-				oct += 1
-			default:
-				oct += 0
-			}
+		if string(perms[0]) == "r" {
+			oct += 4
 		}
+		if string(perms[1]) == "w" {
+			oct += 2
+		}
+		if string(perms[2]) == "x" {
+			oct += 1
+		}
+
 		return strconv.Itoa(oct)
 	}
 
 	computemodes := func(perms int64, modes string) os.FileMode {
 		result := os.FileMode(perms)
 		for _, mode := range modes {
-			switch mode {
+			switch string(mode) {
 			case "u":
 				result |= os.ModeSetuid
 			case "g":
