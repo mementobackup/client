@@ -133,84 +133,48 @@ func ctime(fi os.FileInfo) int64 {
 	return result
 }
 
-func convert(perms string) os.FileMode {
-	var others, group, user int
-	var sticky, sgid, suid bool
-	var result os.FileMode
+func perms(str string) os.FileMode {
+	var octal string
 
-	others = 0
-	group = 0
-	user = 0
+	computeperms := func(perms string) string {
+		var oct int
+		for _, perm := range perms {
+			switch string(perm) {
+			case "r":
+				oct += 4
+			case "w":
+				oct += 2
+			case "x":
+				oct += 1
+			default:
+				oct += 0
+			}
+		}
+		return strconv.Itoa(oct)
+	}
 
-	sticky = false
-	suid = false
-	sgid = false
-
-	compute := func(perm string) int {
-		if perm == "r" {
-			return 4
-		} else if perm == "w" {
-			return 2
-		} else if perm == "x" || perm == "s" || perm == "t" {
-			return 1
-		} else {
-			return 0
+	computemodes := func(perms int64, modes string) os.FileMode {
+		result := os.FileMode(perms)
+		for _, mode := range modes {
+			switch mode {
+			case "u":
+				result |= os.ModeSetuid
+			case "g":
+				result |= os.ModeSetgid
+			case "t":
+				result |= os.ModeSticky
+			}
+			return result
 		}
 	}
 
-	for i := 0; i < len(perms); i++ {
-		perm := string(perms[len(perms)-1-i])
-		if perm != "-" {
-			if i == 0 || i == 1 || i == 2 {
-				if perm == "t" {
-					others += compute(perm)
-					sticky = true
-				} else if perm == "T" {
-					sticky = true
-				} else {
-					others += compute(perm)
-				}
-			}
+	mode, perms := str[:len(str)-9], str[len(str)-9:]
+	user, group, others := perms[0:3], perms[3:6], perms[6:9]
 
-			if i == 3 || i == 4 || i == 5 {
-				if perm == "s" {
-					group += compute(perm)
-					sgid = true
-				} else if perm == "S" {
-					sgid = true
-				} else {
-					group += compute(perm)
-				}
-			}
+	octal = computeperms(user) + computeperms(group) + computeperms(others)
+	conv, _ := strconv.ParseInt(octal, 8, 32)
 
-			if i == 6 || i == 7 || i == 8 {
-				if perm == "s" {
-					user += compute(perm)
-					suid = true
-				} else if perm == "S" {
-					suid = true
-				} else {
-					user += compute(perm)
-				}
-
-			}
-		}
-	}
-	octal, _ := strconv.ParseInt(strconv.Itoa(user)+strconv.Itoa(group)+strconv.Itoa(others), 8, 32)
-
-	result = os.FileMode(octal)
-
-	if suid {
-		result = result | os.ModeSetuid
-	}
-
-	if sgid {
-		result = result | os.ModeSetgid
-	}
-
-	if sticky {
-		result = result | os.ModeSticky
-	}
+	result := computemodes(conv, mode)
 
 	return result
 }
