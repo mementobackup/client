@@ -13,6 +13,7 @@ import (
 	"net"
 	"os"
 	"time"
+	"runtime"
 )
 
 func Put(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
@@ -21,5 +22,19 @@ func Put(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 	_, err = os.Stat(command.Element.Name)
 	if err == nil || os.IsExist(err) {
 		os.Rename(command.Element.Name, command.Element.Name+"."+time.Now().String())
+	}
+
+	switch command.Element.Type {
+	case "directory":
+		os.Mkdir(command.Element.Name, 0755)
+	case "file":
+		// TODO: download file
+	case "symlink":
+		// TODO: create symlink
+	}
+
+	if runtime.GOOS != "windows" {
+		// TODO: chown directory
+		os.Chmod(command.Element.Name, perms(command.Element.Mode))
 	}
 }
