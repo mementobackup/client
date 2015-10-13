@@ -21,6 +21,11 @@ static int mygetpwuid_r(int uid, struct passwd *pwd, char *buf, size_t buflen, s
 static int mygetgrgid_r(int gid, struct group *grp, char *buf, size_t buflen, struct group **result) {
     	 return getgrgid_r(gid, grp, buf, buflen, result);
 }
+
+
+static int mygetgrnam_r(const char *name, struct group *grp, char *buf, size_t buflen, struct group **result) {
+                 return getgrnam_r(name, grp, buf, buflen, result);
+}
 */
 import "C"
 
@@ -88,6 +93,30 @@ func getgroupname(fi os.FileInfo) (string, error) {
 		result = C.GoString(grp.gr_name)
 	} else {
 		return "", errors.New("Could not convert groupname")
+	}
+	return result, nil
+}
+
+func getgroupid(group string) (int, error) {
+	var rv C.int
+	var grp C.struct_group
+	var grpres *C.struct_group
+	var bufSize C.long
+	var result int
+
+	bufSize = 1024
+	buf := C.malloc(C.size_t(bufSize))
+	defer C.free(buf)
+
+	rv = C.mygetgrnam_r(C.CString(group), &grp, (*C.char)(buf), C.size_t(bufSize), &grpres)
+	if rv != 0 {
+		return -1, errors.New("Could not read groupid")
+	}
+
+	if grpres != nil {
+		result = int(C.int(grp.gr_gid))
+	} else {
+		return -1, errors.New("Could not convert groupid")
 	}
 	return result, nil
 }

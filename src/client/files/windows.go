@@ -23,8 +23,13 @@ func getusername(fi os.FileInfo) (string, error) {
 }
 
 func getgroupname(fi os.FileInfo) (string, error) {
-	// TODO: use this function for getting file username in the windows environment
+	// TODO: use this function for getting file group name in the windows environment
 	return "", nil
+}
+
+func getgroupid(group string) (int, error) {
+	// TODO: use this function for getting group id in the windows environment
+	return -1, nil
 }
 
 func (f FileACL) List(log *logging.Logger) []common.JSONFileAcl {
