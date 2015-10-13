@@ -36,3 +36,8 @@ func ctime(fi os.FileInfo) int64 {
 	// TODO: write code for getting windows ctime
 	return 0
 }
+
+func perms(str string) os.FileMode {
+	// TODO: use this function for getting file permissions in the windows environment
+	return nil
+}
