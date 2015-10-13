@@ -9,14 +9,18 @@ package files
 
 import (
 	"bitbucket.org/ebianchi/memento-common/common"
+	"fmt"
 	"github.com/op/go-logging"
 	"net"
 	"os"
-	"time"
+	"os/user"
 	"runtime"
+	"strconv"
+	"time"
 )
 
 func Put(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
+	var uid, gid int
 	var err error
 
 	_, err = os.Stat(command.Element.Name)
@@ -34,7 +38,18 @@ func Put(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 	}
 
 	if runtime.GOOS != "windows" {
-		// TODO: chown directory
+		uname, err := user.Lookup(command.Element.User)
+		if err != nil {
+			uname, _ := user.Lookup("nobody")
+			uid, _ = strconv.Atoi(uname.Uid)
+			gid, _ = strconv.Atoi(uname.Gid)
+		}
+		uid, _ = strconv.Atoi(uname.Uid)
+		// TODO: extract group id
+		fmt.Println(uid, gid)
+
+		//TODO: chown element
+		//os.Chown(command.Element.Name, uid, gid)
 		os.Chmod(command.Element.Name, perms(command.Element.Mode))
 	}
 }
