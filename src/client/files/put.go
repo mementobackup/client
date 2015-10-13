@@ -9,7 +9,6 @@ package files
 
 import (
 	"bitbucket.org/ebianchi/memento-common/common"
-	"fmt"
 	"github.com/op/go-logging"
 	"net"
 	"os"
@@ -45,11 +44,9 @@ func Put(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 			gid, _ = strconv.Atoi(uname.Gid)
 		}
 		uid, _ = strconv.Atoi(uname.Uid)
-		// TODO: extract group id
-		fmt.Println(uid, gid)
+		gid, _ = getgroupid(command.Element.Group)
 
-		//TODO: chown element
-		//os.Chown(command.Element.Name, uid, gid)
+		os.Chown(command.Element.Name, uid, gid)
 		os.Chmod(command.Element.Name, getperms(command.Element.Mode))
 	}
 }
