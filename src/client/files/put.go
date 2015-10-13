@@ -50,6 +50,6 @@ func Put(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 
 		//TODO: chown element
 		//os.Chown(command.Element.Name, uid, gid)
-		os.Chmod(command.Element.Name, perms(command.Element.Mode))
+		os.Chmod(command.Element.Name, getperms(command.Element.Mode))
 	}
 }

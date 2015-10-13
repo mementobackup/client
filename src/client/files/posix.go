@@ -39,7 +39,7 @@ import (
 
 type FileACL string
 
-func username(fi os.FileInfo) (string, error) {
+func getusername(fi os.FileInfo) (string, error) {
 	var rv C.int
 	var pwd C.struct_passwd
 	var pwdres *C.struct_passwd
@@ -66,7 +66,7 @@ func username(fi os.FileInfo) (string, error) {
 	return result, nil
 }
 
-func groupname(fi os.FileInfo) (string, error) {
+func getgroupname(fi os.FileInfo) (string, error) {
 	var rv C.int
 	var grp C.struct_group
 	var grpres *C.struct_group
@@ -124,7 +124,7 @@ func (f FileACL) List(log *logging.Logger) []common.JSONFileAcl {
 	return result
 }
 
-func ctime(fi os.FileInfo) int64 {
+func getctime(fi os.FileInfo) int64 {
 	var result int64
 
 	stat := fi.Sys().(*syscall.Stat_t)
@@ -133,7 +133,7 @@ func ctime(fi os.FileInfo) int64 {
 	return result
 }
 
-func perms(str string) os.FileMode {
+func getperms(str string) os.FileMode {
 	computeperms := func(perms string) string {
 		var oct int
 		if string(perms[0]) == "r" {

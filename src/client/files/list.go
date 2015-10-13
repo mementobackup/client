@@ -37,10 +37,10 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	file.Mtime = fi.ModTime().Unix()
 
 	if runtime.GOOS != "windows" {
-		file.User, _ = username(fi)
-		file.Group, _ = groupname(fi)
+		file.User, _ = getusername(fi)
+		file.Group, _ = getgroupname(fi)
 		file.Mode = fi.Mode().String()
-		file.Ctime = ctime(fi)
+		file.Ctime = getctime(fi)
 	}
 
 	// Set type of element (file or directory)

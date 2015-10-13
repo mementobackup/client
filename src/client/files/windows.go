@@ -17,12 +17,12 @@ import (
 
 type FileACL string
 
-func username(fi os.FileInfo) (string, error) {
+func getusername(fi os.FileInfo) (string, error) {
 	// TODO: use this function for getting file username in the windows environment
 	return "", nil
 }
 
-func groupname(fi os.FileInfo) (string, error) {
+func getgroupname(fi os.FileInfo) (string, error) {
 	// TODO: use this function for getting file username in the windows environment
 	return "", nil
 }
@@ -32,12 +32,12 @@ func (f FileACL) List(log *logging.Logger) []common.JSONFileAcl {
 	return nil
 }
 
-func ctime(fi os.FileInfo) int64 {
+func getctime(fi os.FileInfo) int64 {
 	// TODO: write code for getting windows ctime
 	return 0
 }
 
-func perms(str string) os.FileMode {
+func getperms(str string) os.FileMode {
 	// TODO: use this function for getting file permissions in the windows environment
 	return nil
 }
