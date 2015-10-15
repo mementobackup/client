@@ -33,11 +33,17 @@ func Put(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 	case "file":
 		hash, err := common.Receivefile(command.Element.Name, conn)
 		if hash != command.Element.Hash {
-			// TODO: manage transfer error
+			log.Debug("Error: hash mismatch")
+			res := common.JSONResult{Result: "ko", Message: "Hash mismatch"}
+			res.Send(conn)
+			return
 		}
 
 		if err != nil {
-			// TODO: manage error
+			log.Debug("Error:", err)
+			res := common.JSONResult{Result: "ko", Message: "Error: " + err}
+			res.Send(conn)
+			return
 		}
 	case "symlink":
 		// TODO: create symlink
