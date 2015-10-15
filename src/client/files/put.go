@@ -31,7 +31,14 @@ func Put(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 	case "directory":
 		os.Mkdir(command.Element.Name, 0755)
 	case "file":
-		// TODO: download file
+		hash, err := common.Receivefile(command.Element.Name, conn)
+		if hash != command.Element.Hash {
+			// TODO: manage transfer error
+		}
+
+		if err != nil {
+			// TODO: manage error
+		}
 	case "symlink":
 		// TODO: create symlink
 	}
