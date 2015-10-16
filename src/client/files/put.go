@@ -41,7 +41,7 @@ func Put(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 
 		if err != nil {
 			log.Debug("Error:", err)
-			res := common.JSONResult{Result: "ko", Message: "Error: " + err}
+			res := common.JSONResult{Result: "ko", Message: "Error: " + err.Error()}
 			res.Send(conn)
 			return
 		}
