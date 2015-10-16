@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-func Put(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
+func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 	var uid, gid int
 	var err error
 
