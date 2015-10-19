@@ -18,6 +18,10 @@ import (
 	"time"
 )
 
+func fs_posix_set_acls(acls *[]common.JSONFileAcl) {
+	// TODO: add cde for set ACLs on Linux
+}
+
 func fs_posix_perms(element *common.JSONFile) {
 	var uid, gid int
 
@@ -66,6 +70,7 @@ func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 
 	if runtime.GOOS != "windows" {
 		fs_posix_perms(&command.Element)
+		fs_posix_set_acls(&command.Element.Acl)
 	} else {
 		// TODO: write code for set ACLs on Windows
 	}
