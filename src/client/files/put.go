@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-func setperms(element *common.JSONFile) {
+func fs_posix_perms(element *common.JSONFile) {
 	var uid, gid int
 
 	uname, err := user.Lookup(element.User)
@@ -65,7 +65,7 @@ func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 	}
 
 	if runtime.GOOS != "windows" {
-		setperms(&command.Element)
+		fs_posix_perms(&command.Element)
 	} else {
 		// TODO: write code for set ACLs on Windows
 	}
