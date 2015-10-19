@@ -32,7 +32,6 @@ func setperms(element *common.JSONFile) {
 
 	os.Chown(element.Name, uid, gid)
 	os.Chmod(element.Name, getperms(element.Mode))
-	// TODO: add cde for set ACLs on Linux
 }
 
 func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
