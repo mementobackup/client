@@ -21,22 +21,18 @@ import (
 func setperms(element *common.JSONFile) {
 	var uid, gid int
 
-	if runtime.GOOS != "windows" {
-		uname, err := user.Lookup(element.User)
-		if err != nil {
-			uname, _ := user.Lookup("nobody")
-			uid, _ = strconv.Atoi(uname.Uid)
-			gid, _ = strconv.Atoi(uname.Gid)
-		}
+	uname, err := user.Lookup(element.User)
+	if err != nil {
+		uname, _ := user.Lookup("nobody")
 		uid, _ = strconv.Atoi(uname.Uid)
-		gid, _ = getgroupid(element.Group)
-
-		os.Chown(element.Name, uid, gid)
-		os.Chmod(element.Name, getperms(element.Mode))
-		// TODO: add cde for set ACLs on Linux
-	} else {
-		// TODO: write code for set ACLs on Windows
+		gid, _ = strconv.Atoi(uname.Gid)
 	}
+	uid, _ = strconv.Atoi(uname.Uid)
+	gid, _ = getgroupid(element.Group)
+
+	os.Chown(element.Name, uid, gid)
+	os.Chmod(element.Name, getperms(element.Mode))
+	// TODO: add cde for set ACLs on Linux
 }
 
 func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
@@ -69,7 +65,11 @@ func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 		// TODO: create symlink
 	}
 
-	setperms(&command.Element)
+	if runtime.GOOS != "windows" {
+		setperms(&command.Element)
+	} else {
+		// TODO: write code for set ACLs on Windows
+	}
 
 	res := common.JSONResult{Result: "ok"}
 	res.Send(conn)
