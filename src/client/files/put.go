@@ -18,6 +18,10 @@ import (
 	"time"
 )
 
+func fs_windows_set_acls(acls *[]common.JSONFileAcl) {
+	// TODO: write code for set ACLs on Windows
+}
+
 func fs_posix_set_acls(acls *[]common.JSONFileAcl) {
 	// TODO: add cde for set ACLs on Linux
 }
@@ -72,7 +76,7 @@ func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 		fs_posix_set_perms(&command.Element)
 		fs_posix_set_acls(&command.Element.Acl)
 	} else {
-		// TODO: write code for set ACLs on Windows
+		fs_windows_set_acls(&command.Element.Acl)
 	}
 
 	res := common.JSONResult{Result: "ok"}
