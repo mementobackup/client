@@ -18,16 +18,27 @@ import (
 	"time"
 )
 
-func fs_windows_set_acls(acls *[]common.JSONFileAcl) {
-	// TODO: write code for set ACLs on Windows
+func fs_windows_set_acls(acls *[]common.JSONFileAcl) common.JSONResult {
+	var result common.JSONResult
+
+	// TODO: write code to set ACLs on Windows
+	result = common.JSONResult{Result: "ok"}
+
+	return result
 }
 
-func fs_posix_set_acls(acls *[]common.JSONFileAcl) {
-	// TODO: add cde for set ACLs on Linux
+func fs_posix_set_acls(acls *[]common.JSONFileAcl) common.JSONResult {
+	var result common.JSONResult
+
+	// TODO: add cde to set ACLs on Linux
+	result = common.JSONResult{Result: "ok"}
+
+	return result
 }
 
-func fs_posix_set_perms(element *common.JSONFile) {
+func fs_posix_set_perms(element *common.JSONFile) common.JSONResult {
 	var uid, gid int
+	var result common.JSONResult
 
 	uname, err := user.Lookup(element.User)
 	if err != nil {
@@ -38,11 +49,23 @@ func fs_posix_set_perms(element *common.JSONFile) {
 	uid, _ = strconv.Atoi(uname.Uid)
 	gid, _ = getgroupid(element.Group)
 
-	os.Chown(element.Name, uid, gid)
-	os.Chmod(element.Name, getperms(element.Mode))
+	if err := os.Chmod(element.Name, getperms(element.Mode)); err != nil {
+		log.Debug("Error:", err)
+		result = common.JSONResult{Result: "ko", Message: err.Error()}
+	} else {
+		if err := os.Chown(element.Name, uid, gid); err != nil {
+			log.Debug("Error:", err)
+			result = common.JSONResult{Result: "ko", Message: err.Error()}
+		} else {
+			result = common.JSONResult{Result: "ok"}
+		}
+	}
+
+	return result
 }
 
 func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
+	var result common.JSONResult
 	var err error
 
 	_, err = os.Stat(command.Element.Name)
@@ -73,12 +96,14 @@ func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 	}
 
 	if runtime.GOOS != "windows" {
-		fs_posix_set_perms(&command.Element)
-		fs_posix_set_acls(&command.Element.Acl)
+		if res := fs_posix_set_perms(&command.Element); res.Result == "ko" {
+			result = res
+		} else {
+			result = fs_posix_set_acls(&command.Element.Acl)
+		}
 	} else {
-		fs_windows_set_acls(&command.Element.Acl)
+		result = fs_windows_set_acls(&command.Element.Acl)
 	}
 
-	res := common.JSONResult{Result: "ok"}
-	res.Send(conn)
+	result.Send(conn)
 }
