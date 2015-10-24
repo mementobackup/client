@@ -18,6 +18,22 @@ import (
 	"time"
 )
 
+func fs_set_attrs(command *common.JSONCommand) common.JSONResult{
+	var result common.JSONResult
+
+	if runtime.GOOS != "windows" {
+		if res := fs_posix_set_perms(&command.Element); res.Result == "ko" {
+			result = res
+		} else {
+			result = fs_posix_set_acls(&command.Element.Acl)
+		}
+	} else {
+		result = fs_windows_set_acls(&command.Element.Acl)
+	}
+
+	return result
+}
+
 func fs_windows_set_acls(acls *[]common.JSONFileAcl) common.JSONResult {
 	var result common.JSONResult
 
@@ -65,7 +81,6 @@ func fs_posix_set_perms(element *common.JSONFile) common.JSONResult {
 }
 
 func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
-	var result common.JSONResult
 	var err error
 
 	_, err = os.Stat(command.Element.Name)
@@ -95,15 +110,6 @@ func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 		// TODO: create symlink
 	}
 
-	if runtime.GOOS != "windows" {
-		if res := fs_posix_set_perms(&command.Element); res.Result == "ko" {
-			result = res
-		} else {
-			result = fs_posix_set_acls(&command.Element.Acl)
-		}
-	} else {
-		result = fs_windows_set_acls(&command.Element.Acl)
-	}
-
-	result.Send(conn)
+	res := fs_set_attrs(command)
+	res.Send(conn)
 }
