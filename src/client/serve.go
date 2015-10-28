@@ -11,8 +11,10 @@ import (
 	"bufio"
 	"crypto/rand"
 	"crypto/tls"
+	"crypto/x509"
 	"github.com/go-ini/ini"
 	"github.com/op/go-logging"
+	"io/ioutil"
 	"net"
 	"time"
 )
@@ -29,9 +31,17 @@ func tlsserve(log *logging.Logger, addr, certificate, key string) net.Listener {
 		log.Fatalf("Error when instantiate SSL connection: %v", err)
 	}
 
+	caCert, err := ioutil.ReadFile(certificate)
+	if err != nil {
+		log.Fatal(err)
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
 	config := tls.Config{
-		InsecureSkipVerify: true,
+		ClientCAs:    caCertPool,
 		Certificates: []tls.Certificate{cert},
+		ClientAuth:   tls.RequestClientCert,
 	}
 
 	now := time.Now()
