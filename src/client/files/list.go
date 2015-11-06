@@ -8,8 +8,8 @@
 package files
 
 import (
-	"bitbucket.org/ebianchi/memento-common/common"
 	"encoding/hex"
+	"github.com/mementobackup/common/src/common"
 	"github.com/op/go-logging"
 	"net"
 	"os"
@@ -47,7 +47,7 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 	if fi.IsDir() {
 		file.Type = "directory"
 		file.Size = fi.Size()
-	} else if fi.Mode() & os.ModeSymlink == os.ModeSymlink {
+	} else if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
 		file.Type = "symlink"
 		file.Size = fi.Size()
 

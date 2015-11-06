@@ -10,7 +10,6 @@
 package files
 
 import (
-	"bitbucket.org/ebianchi/memento-common/common"
 	"github.com/op/go-logging"
 	"os"
 )

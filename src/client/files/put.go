@@ -8,7 +8,7 @@
 package files
 
 import (
-	"bitbucket.org/ebianchi/memento-common/common"
+	"github.com/mementobackup/common/src/common"
 	"github.com/op/go-logging"
 	"net"
 	"os"
@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-func fs_set_attrs(command *common.JSONCommand) common.JSONResult{
+func fs_set_attrs(command *common.JSONCommand) common.JSONResult {
 	var result common.JSONResult
 
 	if runtime.GOOS != "windows" {

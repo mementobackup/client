@@ -30,9 +30,9 @@ static int mygetgrnam_r(const char *name, struct group *grp, char *buf, size_t b
 import "C"
 
 import (
-	"bitbucket.org/ebianchi/memento-common/common"
 	"bytes"
 	"errors"
+	"github.com/mementobackup/common/src/common"
 	"github.com/op/go-logging"
 	"os"
 	"os/exec"

@@ -8,9 +8,9 @@
 package client
 
 import (
-	"bitbucket.org/ebianchi/memento-common/common"
 	"client/files"
 	"encoding/json"
+	"github.com/mementobackup/common/src/common"
 	"github.com/op/go-logging"
 	"net"
 	"os"
