@@ -153,6 +153,29 @@ func (f FileACL) List(log *logging.Logger) []common.JSONFileAcl {
 	return result
 }
 
+func (f FileACL) Set(log *logging.Logger, acl common.JSONFileAcl) error {
+	command := "setfacl"
+	args := []string{}
+
+	args = append(args, "-m")
+	if acl.User != "" {
+		args = append(args, "u:"+acl.User+":"+acl.Mode)
+	} else {
+		args = append(args, "g:"+acl.Group+":"+acl.Mode)
+	}
+	args = append(args, string(f))
+
+	process := exec.Command(command, args...)
+
+	err := process.Run()
+	if err != nil {
+		log.Fatal(err) // FIXME: manage error
+		return err
+	} else {
+		return nil
+	}
+}
+
 func getctime(fi os.FileInfo) int64 {
 	var result int64
 
