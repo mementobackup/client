@@ -34,7 +34,7 @@ func fs_set_attrs(command *common.JSONCommand) common.JSONResult {
 	return result
 }
 
-func fs_windows_set_acls(filename string, acls *[]common.JSONFileAcl) common.JSONResult {
+func fs_windows_set_acls(filename *string, acls *[]common.JSONFileAcl) common.JSONResult {
 	var result common.JSONResult
 
 	// TODO: write code to set ACLs on Windows
@@ -43,7 +43,7 @@ func fs_windows_set_acls(filename string, acls *[]common.JSONFileAcl) common.JSO
 	return result
 }
 
-func fs_posix_set_acls(filename string, acls *[]common.JSONFileAcl) common.JSONResult {
+func fs_posix_set_acls(filename *string, acls *[]common.JSONFileAcl) common.JSONResult {
 	var result common.JSONResult
 
 	// TODO: add cde to set ACLs on Linux
