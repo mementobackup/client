@@ -25,16 +25,16 @@ func fs_set_attrs(command *common.JSONCommand) common.JSONResult {
 		if res := fs_posix_set_perms(&command.Element); res.Result == "ko" {
 			result = res
 		} else {
-			result = fs_posix_set_acls(&command.Element.Acl)
+			result = fs_posix_set_acls(&command.Element.Name, &command.Element.Acl)
 		}
 	} else {
-		result = fs_windows_set_acls(&command.Element.Acl)
+		result = fs_windows_set_acls(&command.Element.Name, &command.Element.Acl)
 	}
 
 	return result
 }
 
-func fs_windows_set_acls(acls *[]common.JSONFileAcl) common.JSONResult {
+func fs_windows_set_acls(filename string, acls *[]common.JSONFileAcl) common.JSONResult {
 	var result common.JSONResult
 
 	// TODO: write code to set ACLs on Windows
@@ -43,7 +43,7 @@ func fs_windows_set_acls(acls *[]common.JSONFileAcl) common.JSONResult {
 	return result
 }
 
-func fs_posix_set_acls(acls *[]common.JSONFileAcl) common.JSONResult {
+func fs_posix_set_acls(filename string, acls *[]common.JSONFileAcl) common.JSONResult {
 	var result common.JSONResult
 
 	// TODO: add cde to set ACLs on Linux
