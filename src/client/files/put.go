@@ -18,23 +18,23 @@ import (
 	"time"
 )
 
-func fs_set_attrs(command *common.JSONCommand) common.JSONResult {
+func fs_set_attrs(log *logging.Logger, command *common.JSONCommand) common.JSONResult {
 	var result common.JSONResult
 
 	if runtime.GOOS != "windows" {
-		if res := fs_posix_set_perms(&command.Element); res.Result == "ko" {
+		if res := fs_posix_set_perms(log, &command.Element); res.Result == "ko" {
 			result = res
 		} else {
-			result = fs_posix_set_acls(&command.Element.Name, &command.Element.Acl)
+			result = fs_posix_set_acls(log, &command.Element.Name, &command.Element.Acl)
 		}
 	} else {
-		result = fs_windows_set_acls(&command.Element.Name, &command.Element.Acl)
+		result = fs_windows_set_acls(log, &command.Element.Name, &command.Element.Acl)
 	}
 
 	return result
 }
 
-func fs_windows_set_acls(filename *string, acls *[]common.JSONFileAcl) common.JSONResult {
+func fs_windows_set_acls(log *logging.Logger, filename *string, acls *[]common.JSONFileAcl) common.JSONResult {
 	var result common.JSONResult
 
 	// TODO: write code to set ACLs on Windows
@@ -43,7 +43,7 @@ func fs_windows_set_acls(filename *string, acls *[]common.JSONFileAcl) common.JS
 	return result
 }
 
-func fs_posix_set_acls(filename *string, acls *[]common.JSONFileAcl) common.JSONResult {
+func fs_posix_set_acls(log *logging.Logger, filename *string, acls *[]common.JSONFileAcl) common.JSONResult {
 	var result common.JSONResult
 
 	// TODO: add cde to set ACLs on Linux
@@ -52,7 +52,7 @@ func fs_posix_set_acls(filename *string, acls *[]common.JSONFileAcl) common.JSON
 	return result
 }
 
-func fs_posix_set_perms(element *common.JSONFile) common.JSONResult {
+func fs_posix_set_perms(log *logging.Logger, element *common.JSONFile) common.JSONResult {
 	var uid, gid int
 	var result common.JSONResult
 
@@ -110,6 +110,6 @@ func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 		// TODO: create symlink
 	}
 
-	res := fs_set_attrs(command)
+	res := fs_set_attrs(log, command)
 	res.Send(conn)
 }
