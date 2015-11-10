@@ -130,7 +130,7 @@ func (f FileACL) List(log *logging.Logger) []common.JSONFileAcl {
 	process.Stdout = &out
 	err := process.Run()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err) // FIXME: manage error
 	}
 	output := strings.Split(out.String(), "\n")
 
