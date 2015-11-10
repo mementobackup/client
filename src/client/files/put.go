@@ -12,9 +12,11 @@ import (
 	"github.com/op/go-logging"
 	"net"
 	"os"
+	"os/exec"
 	"os/user"
 	"runtime"
 	"strconv"
+	"syscall"
 	"time"
 )
 
@@ -45,10 +47,24 @@ func fs_windows_set_acls(log *logging.Logger, filename *string, acls *[]common.J
 
 func fs_posix_set_acls(log *logging.Logger, filename *string, acls *[]common.JSONFileAcl) common.JSONResult {
 	var result common.JSONResult
+	var err error
 
-	// TODO: add cde to set ACLs on Linux
-	result = common.JSONResult{Result: "ok"}
+	for _, item := range *acls {
+		fa := FileACL(*filename)
+		err = fa.Set(log, item)
+	}
 
+	if err != nil {
+		result = common.JSONResult{Result: "ko"}
+		if exitError, ok := err.(*exec.ExitError); ok {
+			waitStatus := exitError.Sys().(syscall.WaitStatus)
+			message := exitError.String()
+
+			result.Message = "Status: " + strconv.Itoa(waitStatus.ExitStatus()) + " Message: " + message
+		}
+	} else {
+		result = common.JSONResult{Result: "ok"}
+	}
 	return result
 }
 
