@@ -77,10 +77,15 @@ func fs_posix_set_perms(log *logging.Logger, element *common.JSONFile) common.JS
 		uname, _ := user.Lookup("nobody")
 		uid, _ = strconv.Atoi(uname.Uid)
 		gid, _ = strconv.Atoi(uname.Gid)
+	} else {
+		uid, _ = strconv.Atoi(uname.Uid)
+		gid, err = getgroupid(element.Group)
+		if err != nil {
+			gid, _ = getgroupid("nogroup")
+		}
 	}
-	uid, _ = strconv.Atoi(uname.Uid)
-	gid, _ = getgroupid(element.Group)
 
+	// TODO: fix possible error if element.Mode is empty
 	if err := os.Chmod(element.Name, getperms(element.Mode)); err != nil {
 		log.Debug("Error:", err)
 		result = common.JSONResult{Result: "ko", Message: err.Error()}
