@@ -128,7 +128,16 @@ func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 			return
 		}
 	case "symlink":
-		// TODO: create symlink
+		err = os.Symlink(command.Element.Link, command.Element.Name)
+		if err != nil {
+			log.Debug("Error:", err)
+			res := common.JSONResult{Result: "ko", Message: "Error: " + err.Error()}
+			res.Send(conn)
+		} else {
+			res := common.JSONResult{Result:"ok"}
+			res.Send(conn)
+		}
+		return
 	}
 
 	res := fs_set_attrs(log, command)
