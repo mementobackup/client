@@ -102,44 +102,34 @@ func fs_posix_set_perms(log *logging.Logger, element *common.JSONFile) common.JS
 }
 
 func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
-	var err error
+	var res common.JSONResult
 
-	_, err = os.Stat(command.Element.Name)
-	if err == nil || os.IsExist(err) {
+	if _, err := os.Stat(command.Element.Name); err == nil || os.IsExist(err) {
 		os.Rename(command.Element.Name, command.Element.Name+"."+time.Now().String())
 	}
 
 	switch command.Element.Type {
 	case "directory":
 		os.Mkdir(command.Element.Name, 0755)
+		res = fs_set_attrs(log, command)
 	case "file":
-		hash, err := common.Receivefile(command.Element.Name, conn)
-		if hash != command.Element.Hash {
+		if hash, err := common.Receivefile(command.Element.Name, conn); hash != command.Element.Hash {
 			log.Debug("Error: hash mismatch")
-			res := common.JSONResult{Result: "ko", Message: "Hash mismatch"}
-			res.Send(conn)
-			return
-		}
-
-		if err != nil {
+			res = common.JSONResult{Result: "ko", Message: "Hash mismatch"}
+		} else if err != nil {
 			log.Debug("Error:", err)
-			res := common.JSONResult{Result: "ko", Message: "Error: " + err.Error()}
-			res.Send(conn)
-			return
+			res = common.JSONResult{Result: "ko", Message: "Error: " + err.Error()}
+		} else {
+			res = fs_set_attrs(log, command)
 		}
 	case "symlink":
-		err = os.Symlink(command.Element.Link, command.Element.Name)
-		if err != nil {
+		if err := os.Symlink(command.Element.Link, command.Element.Name); err != nil {
 			log.Debug("Error:", err)
-			res := common.JSONResult{Result: "ko", Message: "Error: " + err.Error()}
-			res.Send(conn)
+			res = common.JSONResult{Result: "ko", Message: "Error: " + err.Error()}
 		} else {
-			res := common.JSONResult{Result:"ok"}
-			res.Send(conn)
+			res = common.JSONResult{Result: "ok"}
 		}
-		return
 	}
 
-	res := fs_set_attrs(log, command)
 	res.Send(conn)
 }
