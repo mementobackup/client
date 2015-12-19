@@ -17,7 +17,7 @@ import (
 	"os"
 )
 
-const VERSION = "1.0"
+const VERSION = "1.1.0"
 
 const SPEC = `
 Memento - A backup system
