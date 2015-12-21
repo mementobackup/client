@@ -10,6 +10,7 @@
 package files
 
 import (
+	"github.com/mementobackup/common/src/common"
 	"github.com/op/go-logging"
 	"os"
 )
@@ -36,6 +37,11 @@ func (f FileACL) List(log *logging.Logger) []common.JSONFileAcl {
 	return nil
 }
 
+func (f FileACL) Set(log *logging.Logger, acl common.JSONFileAcl) error {
+	// TODO: write code for setting windows file ACLs
+	return nil
+}
+
 func getctime(fi os.FileInfo) int64 {
 	// TODO: write code for getting windows ctime
 	return 0
@@ -43,5 +49,5 @@ func getctime(fi os.FileInfo) int64 {
 
 func getperms(str string) os.FileMode {
 	// TODO: use this function for getting file permissions in the windows environment
-	return nil
+	return 0
 }
