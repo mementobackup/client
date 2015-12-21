@@ -29,6 +29,7 @@ export GOPATH=`pwd`
 git clone git@github.com:mementobackup/client.git .
 go get github.com/gaal/go-options/options
 go get github.com/go-ini/ini
+go get github.com/op/go-logging
 go get github.com/mementobackup/common/src/common
 go build mclient.go
 ```
