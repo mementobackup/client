@@ -85,6 +85,8 @@ func List(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 	if len(command.Paths) > 0 {
 		for _, item := range command.Paths {
 			// WARNING: filepath.Walk() is inefficient
+			//          View https://golang.org/pkg/os/#File.Readdir
+			//          and http://man7.org/linux/man-pages/man2/getdents.2.html
 			filepath.Walk(item, visitfile)
 		}
 	} else {
