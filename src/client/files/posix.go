@@ -123,16 +123,16 @@ func getgroupid(group string) (int, error) {
 
 func (f FileACL) List(log *logging.Logger) []common.JSONFileAcl {
 	var result []common.JSONFileAcl
-	var out bytes.Buffer
+	var stdout bytes.Buffer
 
 	process := exec.Command("getfacl", string(f))
 
-	process.Stdout = &out
+	process.Stdout = &stdout
 	err := process.Run()
 	if err != nil {
 		log.Fatal(err) // FIXME: manage error
 	}
-	output := strings.Split(out.String(), "\n")
+	output := strings.Split(stdout.String(), "\n")
 
 	for _, line := range output {
 		var acl common.JSONFileAcl
