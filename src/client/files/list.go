@@ -83,11 +83,11 @@ func List(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 	log = logger
 
 	if len(command.Paths) > 0 {
-		for _, item := range command.Paths {
+		for _, path := range command.Paths {
 			// WARNING: filepath.Walk() is inefficient
 			//          View https://golang.org/pkg/os/#File.Readdir
 			//          and http://man7.org/linux/man-pages/man2/getdents.2.html
-			filepath.Walk(item, visitfile)
+			filepath.Walk(path, visitfile)
 		}
 	} else {
 		res := common.JSONResult{Result: "ko", Message: "No directory specified"}
