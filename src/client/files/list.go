@@ -17,17 +17,19 @@ import (
 	"runtime"
 )
 
-var connection net.Conn
-var acl bool
-var log *logging.Logger
+type visit struct {
+	connection net.Conn
+	acl        bool
+	log        *logging.Logger
+}
 
-func visitfile(fp string, fi os.FileInfo, err error) error {
+func (v visit) visitfile(fp string, fi os.FileInfo, err error) error {
 	var res common.JSONResult
 	var file common.JSONFile
 
 	if err != nil {
 		res = common.JSONResult{Result: "ko", Message: err.Error()}
-		res.Send(connection)
+		res.Send(v.connection)
 		return nil
 	}
 
@@ -53,7 +55,7 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 
 		link, err := os.Readlink(fp)
 		if err != nil {
-			log.Debug("Error when readlink for " + fp + ": " + err.Error())
+			v.log.Debug("Error when readlink for " + fp + ": " + err.Error())
 		} else {
 			file.Link = link
 		}
@@ -63,34 +65,33 @@ func visitfile(fp string, fi os.FileInfo, err error) error {
 		file.Hash = hex.EncodeToString(common.Md5(fp))
 	}
 
-	if acl && file.Type != "symlink" {
+	if v.acl && file.Type != "symlink" {
 		if runtime.GOOS != "windows" {
 			fa := FileACL(fp)
-			file.Acl = fa.List(log)
+			file.Acl = fa.List(v.log)
 		}
 	}
 
 	// Set result
 	res.Result = "ok"
 	res.Data = file
-	res.Send(connection)
+	res.Send(v.connection)
 	return nil
 }
 
 func List(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
-	connection = conn
-	acl = command.ACL
-	log = logger
+	v := visit{
+		connection: conn,
+		acl:        command.ACL,
+		log:        logger,
+	}
 
 	if len(command.Paths) > 0 {
 		for _, path := range command.Paths {
-			// WARNING: filepath.Walk() is inefficient
-			//          View https://golang.org/pkg/os/#File.Readdir
-			//          and http://man7.org/linux/man-pages/man2/getdents.2.html
-			filepath.Walk(path, visitfile)
+			filepath.Walk(path, v.visitfile)
 		}
 	} else {
 		res := common.JSONResult{Result: "ko", Message: "No directory specified"}
-		res.Send(connection)
+		res.Send(v.connection)
 	}
 }
