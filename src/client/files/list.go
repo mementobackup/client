@@ -15,12 +15,26 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 type visit struct {
 	connection net.Conn
 	acl        bool
+	exclude    string
 	log        *logging.Logger
+}
+
+// Ugly but necessary because filepath.Match stop it when encounter filepath.Separator
+func ismatch(pattern, item string) bool {
+	splitted := strings.Split(item, string(filepath.Separator))
+	for _, element := range splitted {
+		matched, _ := filepath.Match(pattern, element)
+		if matched {
+			return true
+		}
+	}
+	return false
 }
 
 func (v visit) visitfile(fp string, fi os.FileInfo, err error) error {
@@ -30,6 +44,10 @@ func (v visit) visitfile(fp string, fi os.FileInfo, err error) error {
 	if err != nil {
 		res = common.JSONResult{Result: "ko", Message: err.Error()}
 		res.Send(v.connection)
+		return nil
+	}
+
+	if ismatch(v.exclude, fp) {
 		return nil
 	}
 
@@ -83,6 +101,7 @@ func List(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 	v := visit{
 		connection: conn,
 		acl:        command.ACL,
+		exclude:    command.Exclude,
 		log:        logger,
 	}
 
