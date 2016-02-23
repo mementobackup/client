@@ -27,8 +27,8 @@ type visit struct {
 
 // Ugly but necessary because filepath.Match stop it when encounter filepath.Separator
 func ismatch(pattern, item string) bool {
-	splitted := strings.Split(item, string(filepath.Separator))
-	for _, element := range splitted {
+	elements := strings.Split(item, string(filepath.Separator))
+	for _, element := range elements {
 		matched, _ := filepath.Match(pattern, element)
 		if matched {
 			return true
