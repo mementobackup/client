@@ -26,7 +26,7 @@ type visit struct {
 }
 
 // Ugly but necessary because filepath.Match stop it when encounter filepath.Separator
-func ismatch(pattern, item string) bool {
+func isMatch(pattern, item string) bool {
 	elements := strings.Split(item, string(filepath.Separator))
 	for _, element := range elements {
 		matched, _ := filepath.Match(pattern, element)
@@ -37,7 +37,7 @@ func ismatch(pattern, item string) bool {
 	return false
 }
 
-func (v visit) visitfile(fp string, fi os.FileInfo, err error) error {
+func (v visit) visitFile(fp string, fi os.FileInfo, err error) error {
 	var res common.JSONResult
 	var file common.JSONFile
 
@@ -47,7 +47,7 @@ func (v visit) visitfile(fp string, fi os.FileInfo, err error) error {
 		return nil
 	}
 
-	if ismatch(v.exclude, fp) {
+	if isMatch(v.exclude, fp) {
 		return nil
 	}
 
@@ -57,10 +57,10 @@ func (v visit) visitfile(fp string, fi os.FileInfo, err error) error {
 	file.Mtime = fi.ModTime().Unix()
 
 	if runtime.GOOS != "windows" {
-		file.User, _ = getusername(fi)
-		file.Group, _ = getgroupname(fi)
+		file.User, _ = getUserName(fi)
+		file.Group, _ = getGroupName(fi)
 		file.Mode = fi.Mode().String()
-		file.Ctime = getctime(fi)
+		file.Ctime = getCtime(fi)
 	}
 
 	// Set type of element (file or directory)
@@ -107,7 +107,7 @@ func List(logger *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 
 	if len(command.Paths) > 0 {
 		for _, path := range command.Paths {
-			filepath.Walk(path, v.visitfile)
+			filepath.Walk(path, v.visitFile)
 		}
 	} else {
 		res := common.JSONResult{Result: "ko", Message: "No directory specified"}

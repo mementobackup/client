@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-func tlsserve(log *logging.Logger, addr, certificate, key string) net.Listener {
+func tlsServe(log *logging.Logger, addr, certificate, key string) net.Listener {
 	var err error
 	var ln net.Listener
 
@@ -56,7 +56,7 @@ func tlsserve(log *logging.Logger, addr, certificate, key string) net.Listener {
 	return ln
 }
 
-func plainserve(log *logging.Logger, addr string) net.Listener {
+func plainServe(log *logging.Logger, addr string) net.Listener {
 	var err error
 	var ln net.Listener
 
@@ -75,10 +75,10 @@ func Serve(log *logging.Logger, addr string, ssl *ini.File) {
 		certificate := ssl.Section("ssl").Key("certificate").String()
 		key := ssl.Section("ssl").Key("key").String()
 
-		ln = tlsserve(log, addr, certificate, key)
+		ln = tlsServe(log, addr, certificate, key)
 		log.Debug("Opened SSL socket")
 	} else {
-		ln = plainserve(log, addr)
+		ln = plainServe(log, addr)
 		log.Debug("Opened plain socket")
 	}
 	defer ln.Close()

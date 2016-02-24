@@ -44,7 +44,7 @@ import (
 
 type FileACL string
 
-func getusername(fi os.FileInfo) (string, error) {
+func getUserName(fi os.FileInfo) (string, error) {
 	var rv C.int
 	var pwd C.struct_passwd
 	var pwdres *C.struct_passwd
@@ -71,7 +71,7 @@ func getusername(fi os.FileInfo) (string, error) {
 	return result, nil
 }
 
-func getgroupname(fi os.FileInfo) (string, error) {
+func getGroupName(fi os.FileInfo) (string, error) {
 	var rv C.int
 	var grp C.struct_group
 	var grpres *C.struct_group
@@ -97,7 +97,7 @@ func getgroupname(fi os.FileInfo) (string, error) {
 	return result, nil
 }
 
-func getgroupid(group string) (int, error) {
+func getGroupId(group string) (int, error) {
 	var rv C.int
 	var grp C.struct_group
 	var grpres *C.struct_group
@@ -119,6 +119,57 @@ func getgroupid(group string) (int, error) {
 		return -1, errors.New("Could not convert groupid")
 	}
 	return result, nil
+}
+
+func getCtime(fi os.FileInfo) int64 {
+	var result int64
+
+	stat := fi.Sys().(*syscall.Stat_t)
+	result = time.Unix(int64(stat.Ctim.Sec), int64(stat.Ctim.Nsec)).Unix()
+
+	return result
+}
+
+func getPerms(str string) os.FileMode {
+	computeperms := func(perms string) string {
+		var oct int
+		if string(perms[0]) == "r" {
+			oct += 4
+		}
+		if string(perms[1]) == "w" {
+			oct += 2
+		}
+		if string(perms[2]) == "x" {
+			oct += 1
+		}
+
+		return strconv.Itoa(oct)
+	}
+
+	computemodes := func(perms int64, modes string) os.FileMode {
+		result := os.FileMode(perms)
+		for _, mode := range modes {
+			switch string(mode) {
+			case "u":
+				result |= os.ModeSetuid
+			case "g":
+				result |= os.ModeSetgid
+			case "t":
+				result |= os.ModeSticky
+			}
+		}
+		return result
+	}
+
+	mode, perms := str[:len(str)-9], str[len(str)-9:]
+	user, group, others := perms[0:3], perms[3:6], perms[6:9]
+
+	octal := computeperms(user) + computeperms(group) + computeperms(others)
+	conv, _ := strconv.ParseInt(octal, 8, 32)
+
+	result := computemodes(conv, mode)
+
+	return result
 }
 
 func (f FileACL) List(log *logging.Logger) []common.JSONFileAcl {
@@ -175,55 +226,4 @@ func (f FileACL) Set(log *logging.Logger, acl common.JSONFileAcl) error {
 	} else {
 		return nil
 	}
-}
-
-func getctime(fi os.FileInfo) int64 {
-	var result int64
-
-	stat := fi.Sys().(*syscall.Stat_t)
-	result = time.Unix(int64(stat.Ctim.Sec), int64(stat.Ctim.Nsec)).Unix()
-
-	return result
-}
-
-func getperms(str string) os.FileMode {
-	computeperms := func(perms string) string {
-		var oct int
-		if string(perms[0]) == "r" {
-			oct += 4
-		}
-		if string(perms[1]) == "w" {
-			oct += 2
-		}
-		if string(perms[2]) == "x" {
-			oct += 1
-		}
-
-		return strconv.Itoa(oct)
-	}
-
-	computemodes := func(perms int64, modes string) os.FileMode {
-		result := os.FileMode(perms)
-		for _, mode := range modes {
-			switch string(mode) {
-			case "u":
-				result |= os.ModeSetuid
-			case "g":
-				result |= os.ModeSetgid
-			case "t":
-				result |= os.ModeSticky
-			}
-		}
-		return result
-	}
-
-	mode, perms := str[:len(str)-9], str[len(str)-9:]
-	user, group, others := perms[0:3], perms[3:6], perms[6:9]
-
-	octal := computeperms(user) + computeperms(group) + computeperms(others)
-	conv, _ := strconv.ParseInt(octal, 8, 32)
-
-	result := computemodes(conv, mode)
-
-	return result
 }

@@ -20,23 +20,23 @@ import (
 	"time"
 )
 
-func fs_set_attrs(log *logging.Logger, command *common.JSONCommand) common.JSONResult {
+func fsSetAttrs(log *logging.Logger, command *common.JSONCommand) common.JSONResult {
 	var result common.JSONResult
 
 	if runtime.GOOS != "windows" {
-		if res := fs_posix_set_perms(log, &command.Element); res.Result == "ko" {
+		if res := fsPosixSetPerms(log, &command.Element); res.Result == "ko" {
 			result = res
 		} else {
-			result = fs_posix_set_acls(log, &command.Element.Name, &command.Element.Acl)
+			result = fsPosixSetAcls(log, &command.Element.Name, &command.Element.Acl)
 		}
 	} else {
-		result = fs_windows_set_acls(log, &command.Element.Name, &command.Element.Acl)
+		result = fsWindowsSetAcls(log, &command.Element.Name, &command.Element.Acl)
 	}
 
 	return result
 }
 
-func fs_windows_set_acls(log *logging.Logger, filename *string, acls *[]common.JSONFileAcl) common.JSONResult {
+func fsWindowsSetAcls(log *logging.Logger, filename *string, acls *[]common.JSONFileAcl) common.JSONResult {
 	var result common.JSONResult
 
 	// TODO: write code to set ACLs on Windows
@@ -45,7 +45,7 @@ func fs_windows_set_acls(log *logging.Logger, filename *string, acls *[]common.J
 	return result
 }
 
-func fs_posix_set_acls(log *logging.Logger, filename *string, acls *[]common.JSONFileAcl) common.JSONResult {
+func fsPosixSetAcls(log *logging.Logger, filename *string, acls *[]common.JSONFileAcl) common.JSONResult {
 	var result common.JSONResult
 	var err error
 
@@ -68,7 +68,7 @@ func fs_posix_set_acls(log *logging.Logger, filename *string, acls *[]common.JSO
 	return result
 }
 
-func fs_posix_set_perms(log *logging.Logger, element *common.JSONFile) common.JSONResult {
+func fsPosixSetPerms(log *logging.Logger, element *common.JSONFile) common.JSONResult {
 	var uid, gid int
 	var result common.JSONResult
 
@@ -79,14 +79,14 @@ func fs_posix_set_perms(log *logging.Logger, element *common.JSONFile) common.JS
 		gid, _ = strconv.Atoi(uname.Gid)
 	} else {
 		uid, _ = strconv.Atoi(uname.Uid)
-		gid, err = getgroupid(element.Group)
+		gid, err = getGroupId(element.Group)
 		if err != nil {
-			gid, _ = getgroupid("nogroup")
+			gid, _ = getGroupId("nogroup")
 		}
 	}
 
 	// TODO: fix possible error if element.Mode is empty
-	if err := os.Chmod(element.Name, getperms(element.Mode)); err != nil {
+	if err := os.Chmod(element.Name, getPerms(element.Mode)); err != nil {
 		log.Debug("Error:", err)
 		result = common.JSONResult{Result: "ko", Message: err.Error()}
 	} else {
@@ -111,16 +111,16 @@ func Put(log *logging.Logger, conn net.Conn, command *common.JSONCommand) {
 	switch command.Element.Type {
 	case "directory":
 		os.Mkdir(command.Element.Name, 0755)
-		res = fs_set_attrs(log, command)
+		res = fsSetAttrs(log, command)
 	case "file":
-		if hash, err := common.Receivefile(command.Element.Name, conn); hash != command.Element.Hash {
+		if hash, err := common.ReceiveFile(command.Element.Name, conn); hash != command.Element.Hash {
 			log.Debug("Error: hash mismatch")
 			res = common.JSONResult{Result: "ko", Message: "Hash mismatch"}
 		} else if err != nil {
 			log.Debug("Error:", err)
 			res = common.JSONResult{Result: "ko", Message: "Error: " + err.Error()}
 		} else {
-			res = fs_set_attrs(log, command)
+			res = fsSetAttrs(log, command)
 		}
 	case "symlink":
 		if err := os.Symlink(command.Element.Link, command.Element.Name); err != nil {

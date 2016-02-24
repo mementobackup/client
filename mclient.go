@@ -31,7 +31,7 @@ s,ssl=                Set SSL config file
 D,debug               Enable debug messages
 `
 
-func setlog(debug bool) *logging.Logger {
+func setLog(debug bool) *logging.Logger {
 	var log = logging.MustGetLogger("Memento Client")
 	var format = logging.MustStringFormatter(
 		"%{time:2006-01-02 15:04:05.000} %{level} Memento - %{message}",
@@ -78,9 +78,9 @@ func main() {
 
 	// Enable debug
 	if opts.GetBool("debug") {
-		log = setlog(true)
+		log = setLog(true)
 	} else {
-		log = setlog(false)
+		log = setLog(false)
 	}
 
 	// Get port to listen
