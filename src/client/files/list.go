@@ -47,7 +47,7 @@ func (v visit) visitFile(fp string, fi os.FileInfo, err error) error {
 		return nil
 	}
 
-	if isMatch(v.exclude, fp) {
+	if v.exclude != "" && isMatch(v.exclude, fp) {
 		return nil
 	}
 
