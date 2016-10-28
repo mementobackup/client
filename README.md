@@ -20,7 +20,7 @@ It save data attributes (owner, group, permission, ACL) into database.
 
 ## Dependencies:
 
-Client doesn't have external edependencies
+Client doesn't have external dependencies
 
 ## Building:
 ```
@@ -40,9 +40,9 @@ go build mclient.go
 
 ## Usage:
 
-Usage is simpliest:
+Usage is simple:
 ```
-mclient --port <port> --cfg=<cfgfile> -H # hour backup
+mclient --port <port>
 ```
 
 Where `<port>` is a port which to listen the agent.
